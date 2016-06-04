@@ -9,11 +9,11 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define CREATEROOM_SIGNAL -100
-#define ROOMINFOSEND_SIGNAL -101
-#define ADDROOM_SIGNAL -102
-#define JOINROOM_SIGNAL -103
-#define CLOSE_MAINROOM_SIGNAL -104
+#define CREATEROOM_SIGNAL -100   // 클라이언트에서 방을 만들때!
+#define ROOMINFOSEND_SIGNAL -101 // 방정보를 보내달라!
+#define ADDROOM_SIGNAL -102  // 이건 클라가 보낼일이 없음!
+#define JOINROOM_SIGNAL -103    // 방을 조인할때
+#define CLOSE_MAINROOM_SIGNAL -104 // 대기방을 close 할떄
 
 int inputsignal;
 #define SIG inputsignal
@@ -202,16 +202,15 @@ void ReadMessage(int sock,char* buf)
   int recvlen=0;
   char *t = buf;
 
-  while(len!=0 && (recvlen = read(sock,t,len)))
+  while(len!=0  && (recvlen = read(sock,t,len)))
   {
     len -= recvlen;
     t += recvlen;
     if(*(t-1) < 0)
       break;
   }
+
   SIG = *(t-1);
-
-
   printf("<%d> is read  SIG is  = %d  \"%s\"\n",getpid(),SIG,buf);
 
   *(t-1) = 0;
