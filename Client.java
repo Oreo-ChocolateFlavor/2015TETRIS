@@ -21,6 +21,7 @@ public class Client {
 		}
 		return sock;
 	}
+	
 	public static void read_line(DataInputStream din, Socket new_sock) //read and check by the signal
 	{
 		
@@ -48,11 +49,75 @@ public class Client {
 						new_sock = connect_gameserver(new_sock, tmp, host_ip);
 						System.out.println("connect success! to IP: "+host_ip+"port: "+tmp);
 					}
-					else if((int)tmpbuf == CreateRoom.CHANGE_OWNER_SIG)
-					{
-						
-					}
 					else if((int)tmpbuf == CreateRoom.ROOMINFOSEND_SIGNAL)
+					{
+						index = 0;
+						for(int q=0; q<CreateRoom.BUF_SIZE; q++)
+						{
+							
+							tmpbuf = din.readByte();
+							if(tmpbuf  == CreateRoom.ROOMINFOSEND_SIGNAL)
+							{
+								System.out.println("test");
+								
+								int j=(index+1)/64;
+								room_info[] data = new room_info[j];
+								String tmp_name = "";
+								int tmp_port = 0;
+								int tmp_maxperson =0;
+								int tmp_nowperson =0;
+								byte[] tmp_byte = new byte[4];
+								for(int k=0; k<j; k++)
+								{
+									tmp_name ="";
+									for(int l=0; l<52; l++)
+									{
+										tmp_name = tmp_name + Character.toString((char)buf[l+k*64]); 
+									}
+									
+									System.out.println("JAVA " + tmp_name);
+									
+									for(int l=0; l<4; l++)
+									{
+										tmp_byte[l] = buf[l+52+k*64];
+										System.out.println("l="+l);
+									}
+									
+
+									System.out.println("you2 " + tmp_byte[0] + "  "+tmp_byte[1] + "  "+tmp_byte[2] + "  "+tmp_byte[3]);
+									tmp_port = byteToint(tmp_byte);
+									System.out.println("you");
+									
+									for(int l=0; l<4; l++)
+									{
+										tmp_byte[l] = buf[l+56+k*64];
+									}
+									tmp_maxperson = byteToint(tmp_byte);
+									System.out.println("FUCK");
+									
+									for(int l=0; l<4; l++)
+									{
+										tmp_byte[l] = buf[l+60+k*64];
+									}
+									tmp_nowperson = byteToint(tmp_byte);
+									System.out.println("HEEDONG");
+									
+									data[k] = new room_info(tmp_name, tmp_port, tmp_maxperson, tmp_nowperson);
+									System.out.println(k+"th name:"+tmp_name+"port"+tmp_port+"max"+tmp_maxperson+"now"+tmp_nowperson);
+								}	
+								
+								break;
+							}
+							else
+							{
+								
+								System.out.println(index);
+								index = q+1;
+								buf[q] = tmpbuf;
+							}
+						}
+					}
+					else if((int)tmpbuf == CreateRoom.CHANGE_OWNER_SIG)
 					{
 						
 					}
@@ -130,6 +195,9 @@ public class Client {
 
 
              //make WaitingRoom
+            dout.writeByte(CreateRoom.ROOMINFOSEND_SIGNAL);
+            dout.flush();
+            Client.read_line(din,sock);
             WaitingRoom waitingRoom = new WaitingRoom(sock);
             waitingRoom.setVisible(true);
 /*
