@@ -65,8 +65,6 @@ public class WaitingRoom extends javax.swing.JFrame{
                 .addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         jButton_join_roomActionPerformed(evt);
-
-
                     }
                 });
 
@@ -173,14 +171,16 @@ public class WaitingRoom extends javax.swing.JFrame{
             pw.write((char)CREATEROOM_SIGNAL);
             pw.flush();
 
-            boolean join = false;
-            GameRoom gameRoom = new GameRoom(join);
+            CreateRoom createRoom = new CreateRoom(sock);
+            createRoom.setVisible(true);
 
-            java.awt.EventQueue.invokeLater(new Runnable() {
+
+            /*java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     gameRoom.setVisible(true);
                 }
             });
+            */
         } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.getMessage());
@@ -196,13 +196,15 @@ public class WaitingRoom extends javax.swing.JFrame{
             pw.flush();
 
             boolean join = true;
-            GameRoom gameRoom = new GameRoom(join);
+            GameRoom gameRoom = new GameRoom(sock, join);
+            gameRoom.setVisible(true);
 
-            java.awt.EventQueue.invokeLater(new Runnable() {
+            /*java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     gameRoom.setVisible(true);
                 }
             });
+            */
         } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.getMessage());

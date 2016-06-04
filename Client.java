@@ -41,6 +41,8 @@ public class Client {
         //make WaitingRoom
 
             WaitingRoom waitingRoom = new WaitingRoom(sock);
+            waitingRoom.setVisible(true);
+/*
 
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
@@ -48,6 +50,7 @@ public class Client {
                 }
             });
 
+*/
 
 
 

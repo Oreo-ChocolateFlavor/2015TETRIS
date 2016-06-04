@@ -1,29 +1,44 @@
 import javax.swing.*;
+import java.io.*;
+import java.net.Socket;
 
 /**
  * Created by JaeSeung on 2016. 6. 3..
  */
 public class GameRoom extends javax.swing.JFrame{
 
-   //join
+    //join
     boolean join;
 
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JLabel jLabel1;
-     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
 
+    //dummy
     private javax.swing.JButton jButton_exit;
 
-//dummy
-    private javax.swing.JButton jButton_exit;
+    Socket sock;
+    PrintWriter pw;
+    BufferedReader br;
 
-    public GameRoom(boolean join) {
+
+    public GameRoom(Socket sock, boolean join) {
         //check join
         this.join = join;
-    main_jPanel = new javax.swing.JPanel();
+        //sock, read, write
+        this.sock = sock;
+        try {
+            pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
+            br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+
+        } catch(IOException e) {
+            JOptionPane.showMessageDialog(null, "IOException");
+        }
+
+        main_jPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -35,6 +50,10 @@ public class GameRoom extends javax.swing.JFrame{
         jLabel3.setText("Player3");
         jLabel4.setText("Player4");
         jLabel5.setText("Player5");
+
+
+        //join 값 줘서 변경해야함
+        //시작은 방장만 할 수 있도록
 
         Tetris tetris = new Tetris();
         tetris.init();
@@ -232,7 +251,7 @@ public class GameRoom extends javax.swing.JFrame{
 
         setBounds(0, javax.swing.GroupLayout.PREFERRED_SIZE, 1000, 700);
 
-        this.setTitle("Waiting Room");
+        this.setTitle("Game Room");
         this.add(main_jPanel);
         setResizable(false);// 창 크기 못바꾸게
 
