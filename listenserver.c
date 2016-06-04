@@ -8,35 +8,18 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdbool.h>
-
-
-#define CREATEROOM_SIGNAL -100   // 클라이언트에서 방을 만들때!
-#define ROOMINFOSEND_SIGNAL -101 // 방정보를 보내달라!
-#define ADDROOM_SIGNAL -102  // 이건 클라가 보낼일이 없음!
-#define JOINROOM_SIGNAL -103    // 방을 조인할때
-#define CLOSE_MAINROOM_SIGNAL -104 // 대기방을 close 할떄
-#define PORT_SIG -105;
+#include "datastruct.h"
 
 int portnumber = 7000;
 int inputsignal;
 #define SIG inputsignal
 int nfd,fdname;
 
-struct PIPE
-{
-  int child[2];
-  int parent[2];
-}p[1000];
+struct PIPE p[1000];
 
 int pipe_count;
 
-struct room_info
-{
-  char name[50];
-  int port;
-  int maxperson;
-  int nowperson;
-}room[20];
+struct room_info room[20];
 
 static void sighandler(int sig)
 {
@@ -52,10 +35,10 @@ static void sighandler(int sig)
 }
 void SendRoomList(struct PIPE pip);
 void AddRoomList(struct PIPE pip);
-void Gameserver(struct PIPE pip,int connectedsock);
+void Gameserver(struct PIPE pip);
 void ReadMessage(int sock,char* buf);
 void ConnectedServer(int connectedsock,struct PIPE pip);
-void CreateRoom(struct PIPE pip);
+void CreateRoom(struct PIPE pip,int connectedsock);
 void JoinRoom(struct PIPE pip);
 
 int main(int argc,char* argv[])
@@ -207,10 +190,7 @@ int main(int argc,char* argv[])
           }
         }
       }
-
     }
-
-
   }
 
   return 0;
@@ -233,11 +213,6 @@ void AddRoomList(struct PIPE pip)
   printf("%d in the AddRoomList()\n",getpid());
 }
 
-void Gameserver(struct PIPE pip)
-{
-  bind();
-
-}
 
 void ReadMessage(int sock,char* buf)
 {
