@@ -8,7 +8,7 @@ public class GameRoom extends javax.swing.JFrame{
 
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
