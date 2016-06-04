@@ -8,18 +8,18 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "datastruct.h"
 
 int portnumber = 7000;
 int inputsignal;
 #define SIG inputsignal
 int nfd,fdname;
-
 struct PIPE p[1000];
-
 int pipe_count;
 
 struct room_info room[20];
+int room_count;
 
 static void sighandler(int sig)
 {
@@ -35,7 +35,7 @@ static void sighandler(int sig)
 }
 void SendRoomList(struct PIPE pip);
 void AddRoomList(struct PIPE pip);
-void Gameserver(struct PIPE pip);
+void Gameserver(struct PIPE pip,int serverport);
 void ReadMessage(int sock,char* buf);
 void ConnectedServer(int connectedsock,struct PIPE pip);
 void CreateRoom(struct PIPE pip,int connectedsock);
@@ -43,6 +43,7 @@ void JoinRoom(struct PIPE pip);
 
 int main(int argc,char* argv[])
 {
+  room_count = 0;
   int server_sock,client_sock;
   int len;
   pid_t pid;
@@ -165,7 +166,6 @@ int main(int argc,char* argv[])
         {
           char pipemessagebuf[100] = "";
           ReadMessage(p[i].parent[0],pipemessagebuf);
-
           printf("In the Mainserver recv SIG : %d\n",SIG);
 
           if(SIG == CLOSE_MAINROOM_SIGNAL) // 자식이 EXIT했다는 거임.
@@ -211,10 +211,11 @@ void SendRoomList(struct PIPE pip)
 void AddRoomList(struct PIPE pip)
 {
   printf("%d in the AddRoomList()\n",getpid());
+
 }
 
 
-void ReadMessage(int sock,char* buf)
+void ReadMessage(int sock,char* buf) // 버그의 소지가 있음.. 고치는 것은 생각을좀 해보자.
 {
   int len=sizeof(buf);
   int recvlen=0;
@@ -249,16 +250,18 @@ void CreateRoom(struct PIPE pip,int connectedsock) // 여기서 게임방 fork�
   // 여기 방정보를 서버를 보내는 코드를 넣는다.
   write(pip.parent[1],&sig,1);
 
+  sig = PORT_SIG;
   //서버 포트를 받고고
   read(pip.child[0],&gameserverport,sizeof(int));
-  write(connectedsock,&gameserverport,sizeof(int));
+  write(connectedsock,(char*)&gameserverport,sizeof(int));
+  write(connectedsock,&sig,1);
 
   if((gameserver_pid = fork()) < 0)
   {
     perror("gameserver fork()");
   }else if(gameserver_pid == 0) // 여기가 게임서버!
   {
-    Gameserver(pip);
+    Gameserver(pip,gameserverport);
   }
   else if(gameserver_pid > 0) //  여기는 부모!
   {
@@ -266,6 +269,7 @@ void CreateRoom(struct PIPE pip,int connectedsock) // 여기서 게임방 fork�
   }
 
   printf("%d in the CreateRoom() %d\n",getpid(),gameserverport);
+
 }
 
 void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실행되는 놈.
