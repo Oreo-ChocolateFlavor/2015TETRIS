@@ -7,6 +7,11 @@ import java.net.Socket;
  */
 public class CreateRoom extends javax.swing.JFrame{
 
+    public static final int CREATEROOM_SIGNAL = -100;
+    public static final int ROOMINFOSEND_SIGNAL = -101;
+    public static final int JOINROOM_SIGNAL = -103;
+    public static final int CLOSE_MAINROOM_SIGNAL = -104;
+
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField jTextField_name;
@@ -65,6 +70,9 @@ public class CreateRoom extends javax.swing.JFrame{
                                     JOptionPane.PLAIN_MESSAGE);
                             jTextField_name.setEditable(false);
 
+                            pw.write(room_name.toCharArray(), 0, room_name.length());
+                            pw.write((char)ROOMINFOSEND_SIGNAL);
+                            pw.flush();
 
                             //방이름 보내주어야 함
                             boolean join = false;

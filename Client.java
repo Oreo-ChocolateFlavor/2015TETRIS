@@ -38,10 +38,10 @@ public class Client {
 
              ******************************************************************/
 
-        //make WaitingRoom
 
+             //make WaitingRoom
             WaitingRoom waitingRoom = new WaitingRoom(sock);
-           // waitingRoom.setVisible(true);
+            waitingRoom.setVisible(true);
 /*
 
             java.awt.EventQueue.invokeLater(new Runnable() {
@@ -50,7 +50,6 @@ public class Client {
                 }
             });
 
-*/
             Thread thread = new Thread() {
                 public void run() {
                     waitingRoom.setVisible(true);
@@ -61,6 +60,7 @@ public class Client {
             System.out.println("정상적으로 ");
             thread.join();
             System.out.println("정상적으로 joinsignal보냄");
+*/
 
             BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 
@@ -70,8 +70,10 @@ public class Client {
 
             while(true)
             {
-                if(!waitingRoom.isrunning)
+                if(!waitingRoom.isrunning) {
+                    System.out.println("클라이언트의 접속을 종료합니다.");
                     System.exit(0);
+                }
                 System.out.println("정상적으로 joinsignal보냄");
                 Thread.sleep(2000);
             }
@@ -98,9 +100,9 @@ public class Client {
                     break;
                 }
             }
-
             System.out.println("클라이언트의 접속을 종료합니다.");
 */
+
         } catch(Exception ex){
             if(!endflag)
                 System.out.println(ex);

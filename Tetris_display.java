@@ -31,7 +31,7 @@ public class Tetris_display extends JComponent {
 			new Color(0x008080), // teal
 			new Color(0xFFA500), // orange
 		};
-		private final static Color BACKGROUND_COLORS[] = {
+    private final static Color BACKGROUND_COLORS[] = {
 			new Color(0xFFDAB9), // peachpuff
 			new Color(0xFFC0CB), // pink
 			new Color(0xFF99CC), // hot pink
