@@ -218,7 +218,7 @@ void ConnectedServer(int connectedsock) //커넥트 된후 실행되는 놈.
     else if(SIG == JOINROOM_SIGNAL) JoinRoom();
     else if(SIG ==  CLOSE_MAINROOM_SIGNAL)
     {
-      exit(1);
+       exit(1);
     }
   }
 }
