@@ -128,7 +128,7 @@ int main(int argc,char* argv[])
         close(server_sock);
         ConnectedServer(client_sock,pipe_sock);
       }
-      else if(pid > 0) //
+      else if(pid > 0) // 부모면!
       {
         close(client_sock);
 
