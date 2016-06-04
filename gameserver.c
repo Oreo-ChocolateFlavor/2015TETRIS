@@ -14,11 +14,13 @@
 struct person per[5];
 int persontop = 0;
 
+void ReadMessage(int sock,char* buf);
+
 void Gameserver(struct PIPE pip,int serverport)
 {
   int owner;
 
-  printf("GAMESERVER is Created\n");
+  printf("GAMESERVER is Created serverport : %d\n",serverport);
 
   int gameserver_sock, client_sock;
   struct sockaddr_in  server_addr,client_addr;
@@ -32,16 +34,29 @@ void Gameserver(struct PIPE pip,int serverport)
     exit(1);
   }
 
-  memset(&server_addr,0,sizeof(struct sockaddr_in));
-
+  memset(&server_addr,0,sizeof(server_addr));
   server_addr.sin_family = AF_INET;
   server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  server_addr.sin_port = htonl(serverport);
+  server_addr.sin_port = htons(serverport);
+
+
+  int enable = 1;
+
+  if(setsockopt(gameserver_sock,SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < -1)
+  {
+    perror("setsockopt()");
+    exit(1);
+  }
 
   if(bind(gameserver_sock,(struct sockaddr*)&server_addr,sizeof(server_addr)) < 0)
   {
     perror("game bind() err");
     exit(1);
+  }
+
+  if(listen(gameserver_sock,5) < 0)
+  {
+    perror("listen error\n");
   }
 
   FD_ZERO(&oldset);
@@ -57,7 +72,6 @@ void Gameserver(struct PIPE pip,int serverport)
   while(1)
   {
     newset = oldset;
-
     if((fdname = select(nfd,&newset,0,0,&tim)) < 0)
     {
       perror("gameserver select()");
@@ -78,33 +92,7 @@ void Gameserver(struct PIPE pip,int serverport)
     {
       for(int i=0; i<persontop; i++)
       {
-        if(FD_ISSET(per[i].client_sock,&newset)) // 클라이언트들로부터 요청이오면
-        {
-          char pipemessagebuf[100] = "";
-          ReadMessage(p[i].parent[0],pipemessagebuf);
-          printf("In the Mainserver recv SIG : %d\n",SIG);
 
-          if(SIG == CLOSE_MAINROOM_SIGNAL) // 자식이 EXIT했다는 거임.
-          {
-            printf("Mainserver: CLOSE MAINROOM_SIGNAL\n");
-            FD_CLR(p[i].parent[0],&oldset);
-            p[i] = p[pipe_count];
-            pipe_count--;
-          }
-          else if(SIG == JOINROOM_SIGNAL)
-          {
-
-          }
-          else if(SIG == CREATEROOM_SIGNAL) // 여기서 포트넘버를 넘겨주고 포트를 증가시킨다.
-          {
-            printf("Mainserver: CREATEROOM_SIGNAL recv\n");
-            write(p[i].child[1],&portnumber,sizeof(int));
-            portnumber++;
-          }
-          else{
-            printf("Nah... error\n");
-          }
-        }
       }
 
     }

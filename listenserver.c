@@ -34,11 +34,11 @@ static void sighandler(int sig)
 
 }
 void SendRoomList(struct PIPE pip);
-void AddRoomList(struct PIPE pip);
+void AddRoomList(struct PIPE pip,char* buf,int childport);
 void Gameserver(struct PIPE pip,int serverport);
 void ReadMessage(int sock,char* buf);
 void ConnectedServer(int connectedsock,struct PIPE pip);
-void CreateRoom(struct PIPE pip,int connectedsock);
+void CreateRoom(struct PIPE pip,int connectedsock,int* childport);
 void JoinRoom(struct PIPE pip);
 
 int main(int argc,char* argv[])
@@ -185,6 +185,16 @@ int main(int argc,char* argv[])
             write(p[i].child[1],&portnumber,sizeof(int));
             portnumber++;
           }
+          else if(SIG == ADDROOM_SIGNAL)
+          {
+            printf("Mainserver: ADDROOM_SIGNAL recv\n");
+
+            read(p[i].parent[0],&room[room_count],sizeof(struct room_info));
+
+            printf("ADDROOM_SIGNAL name: %s port: %d\n",room[room_count].name,room[room_count].port);
+            room_count++;
+
+          }
           else{
             printf("Nah... error\n");
           }
@@ -208,9 +218,21 @@ void SendRoomList(struct PIPE pip)
   printf("%d in the SendRoomList()\n",getpid());
 }
 
-void AddRoomList(struct PIPE pip)
+void AddRoomList(struct PIPE pip,char* buf,int childport)
 {
-  printf("%d in the AddRoomList()\n",getpid());
+  char sig = ADDROOM_SIGNAL;
+
+  struct room_info temproom;
+
+  write(pip.parent[1],&sig,1);
+
+  memcpy(temproom.name,buf,sizeof(temproom.name));
+  temproom.port = childport;
+  temproom.maxperson = 5;
+  temproom.nowperson = 1;
+
+  printf("%d in the AddRoomList() ROOMNAME is \"%s\"\n",getpid(),buf);
+  write(pip.parent[1],(char*)&temproom,sizeof(temproom));
 
 }
 
@@ -221,7 +243,7 @@ void ReadMessage(int sock,char* buf) // 버그의 소지가 있음.. 고치는 �
   int recvlen=0;
   char *t = buf;
 
-  while(len!=0  && (recvlen = read(sock,t,len)))
+  while(len!=0  && (recvlen = read(sock,t,1)))
   {
     len -= recvlen;
     t += recvlen;
@@ -239,7 +261,7 @@ void JoinRoom(struct PIPE pip)
 //  printf("%d in the JoinRoom()\n",getpid());
 }
 
-void CreateRoom(struct PIPE pip,int connectedsock) // 여기서 게임방 fork를 해준후에  서버랑 포트넘버를 넘겨줌;
+void CreateRoom(struct PIPE pip,int connectedsock,int* childport) // 여기서 게임방 fork를 해준후에  서버랑 포트넘버를 넘겨줌;
 {
   char sig = CREATEROOM_SIGNAL;
   int gameserverport;
@@ -255,6 +277,8 @@ void CreateRoom(struct PIPE pip,int connectedsock) // 여기서 게임방 fork�
   read(pip.child[0],&gameserverport,sizeof(int));
   write(connectedsock,(char*)&gameserverport,sizeof(int));
   write(connectedsock,&sig,1);
+
+  *childport = gameserverport;
 
   if((gameserver_pid = fork()) < 0)
   {
@@ -275,12 +299,13 @@ void CreateRoom(struct PIPE pip,int connectedsock) // 여기서 게임방 fork�
 void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실행되는 놈.
 {
   char buf[1024];
+  int nowport;
   while(1)
   {
     memset(buf,0,sizeof(buf));
     ReadMessage(connectedsock,buf);
     if(SIG == ROOMINFOSEND_SIGNAL){ printf("TEST ROOMINFOSEND_SIGNAL\n"); SendRoomList(pip);}
-    else if(SIG == CREATEROOM_SIGNAL) {printf("TEST CREATEROOM_SIGNAL\n"); CreateRoom(pip,connectedsock);}
+    else if(SIG == CREATEROOM_SIGNAL) {printf("TEST CREATEROOM_SIGNAL\n"); CreateRoom(pip,connectedsock,&nowport);}
     else if(SIG == JOINROOM_SIGNAL){printf("TEST JOINROOM_SIGNAL\n"); JoinRoom(pip); }
     else if(SIG == CLOSE_MAINROOM_SIGNAL)
     {
@@ -289,6 +314,10 @@ void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실�
       write(pip.parent[1],&endsignal,1);
       close(connectedsock);
       exit(1);
+    }
+    else if(SIG == ADDROOM_SIGNAL)
+    {
+      AddRoomList(pip,buf,nowport);
     }
   }
   printf("in the child : this is never display\n");
