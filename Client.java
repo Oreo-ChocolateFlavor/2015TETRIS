@@ -6,28 +6,57 @@ import java.io.*;
 
 
 public class Client {
-	public static void read_line(DataInputStream din)
+	private static String host_ip; //To store host_ip
+	public static Socket connect_gameserver(Socket sock, int port, String ip) //connecting client to game_server
+	{
+		try {
+			System.out.println("IP: "+ip +" port: "+port);
+			sock = new Socket(ip, port);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return sock;
+	}
+	public static void read_line(DataInputStream din, Socket new_sock) //read and check by the signal
 	{
 		
-		byte[] buf = new byte[1024];
+		byte[] buf = new byte[CreateRoom.BUF_SIZE];
 		byte tmpbuf;
 		int index=0;
 		try {
-			for(int i=0; i<1024; i++)
+			for(int i=0; i<CreateRoom.BUF_SIZE; i++)
 			{
 				tmpbuf = din.readByte();
 		
 				if(tmpbuf < 0)
 				{
-					System.out.println("Get signal "+tmpbuf);
+					System.out.println("Get signal "+(int)tmpbuf);
+					if((int)tmpbuf == CreateRoom.PORT_SIG)
+					{
+						System.out.println("Test point");
+						byte[] tmp4 = new byte[4];
+						tmp4[0] = buf[0];
+						tmp4[1] = buf[1];
+						tmp4[2] = buf[2];
+						tmp4[3] = buf[3];
+						int tmp = byteToint(tmp4);
+						System.out.println("goTTA port: " + tmp);
+						new_sock = connect_gameserver(new_sock, tmp, host_ip);
+						System.out.println("connect success! to IP: "+host_ip+"port: "+tmp);
+					}
+					else if((int)tmpbuf == CreateRoom.CHANGE_OWNER_SIG)
+					{
+						
+					}
+					else if((int)tmpbuf == CreateRoom.ROOMINFOSEND_SIGNAL)
+					{
+						
+					}
 					
-					byte[] tmp4 = new byte[4];
-					tmp4[0] = buf[0];
-					tmp4[1] = buf[1];
-					tmp4[2] = buf[2];
-					tmp4[3] = buf[3];
-					
-					System.out.print("goTTA port: " + byteToint(tmp4));
 					index = i;
 					break;
 				}
@@ -58,8 +87,6 @@ public class Client {
 		buff.put(arr);
 		buff.flip();
 		
-		System.out.println("convert: " + buff.getInt());
-		
 		return buff.getInt();
 		
 		
@@ -88,6 +115,7 @@ public class Client {
 
              ******************************************************************/
 
+        	host_ip = new String(args[1]);
             sock = new Socket(args[1], 1818);
             pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
             br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
@@ -105,7 +133,6 @@ public class Client {
             WaitingRoom waitingRoom = new WaitingRoom(sock);
             waitingRoom.setVisible(true);
 /*
-
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     waitingRoom.setVisible(true);

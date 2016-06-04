@@ -178,9 +178,9 @@ public class WaitingRoom extends javax.swing.JFrame{
 
             CreateRoom createRoom = new CreateRoom(sock);
             
-            Client.read_line(din);
             
             createRoom.setVisible(true);
+          //  Client.read_line(din);
             
             
 

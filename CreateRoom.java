@@ -10,9 +10,14 @@ public class CreateRoom extends javax.swing.JFrame{
 
     public static final int CREATEROOM_SIGNAL = -100;
     public static final int ROOMINFOSEND_SIGNAL = -101;
+    public static final int ADDROOM_SIGNAL = -102;
     public static final int JOINROOM_SIGNAL = -103;
     public static final int CLOSE_MAINROOM_SIGNAL = -104;
-
+    public static final int PORT_SIG = -105;
+    public static final int CHANGE_OWNER_SIG = -106;
+    
+    public static final int BUF_SIZE = 1024;
+    
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField jTextField_name;
@@ -20,9 +25,11 @@ public class CreateRoom extends javax.swing.JFrame{
     private javax.swing.JButton jButton_exit;
 
     Socket sock;
+    Socket new_sock;
     PrintWriter pw;
     BufferedReader br;
     DataOutputStream dout;
+    DataInputStream din;
     public CreateRoom(Socket sock) {
         this.sock = sock;
 
@@ -31,6 +38,7 @@ public class CreateRoom extends javax.swing.JFrame{
             pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
             br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
             dout = new DataOutputStream(sock.getOutputStream());
+            din = new DataInputStream(sock.getInputStream());
         } catch(IOException e) {
             JOptionPane.showMessageDialog(null, "IOException");
         }
@@ -76,18 +84,19 @@ public class CreateRoom extends javax.swing.JFrame{
                             
 //                          pw.write((char)ROOMINFOSEND_SIGNAL);
                             dout.write(room_name.getBytes(StandardCharsets.US_ASCII), 0, room_name.getBytes().length);
-                            dout.writeByte(ROOMINFOSEND_SIGNAL);
+                            dout.writeByte(ADDROOM_SIGNAL);
                             dout.flush();
                             
-
+                            
                             //방이름 보내주어야 함
                             boolean join = false;
                             GameRoom gameRoom = new GameRoom(sock, join);
                             gameRoom.setVisible(true);
 
+                            
                             //이 창 닫아야 함
                             dispose();
-
+                            Client.read_line(din,new_sock);
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "방 제목 : "
                                             + room_name + "\r\n등록실패!!\r\n" + e.getMessage(),
