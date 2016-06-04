@@ -5,6 +5,8 @@ import javax.swing.*;
  */
 public class GameRoom extends javax.swing.JFrame{
 
+   //join
+    boolean join;
 
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JLabel jLabel1;
@@ -15,9 +17,13 @@ public class GameRoom extends javax.swing.JFrame{
 
     private javax.swing.JButton jButton_exit;
 
+//dummy
+    private javax.swing.JButton jButton_exit;
 
-    public GameRoom() {
-        main_jPanel = new javax.swing.JPanel();
+    public GameRoom(boolean join) {
+        //check join
+        this.join = join;
+    main_jPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();

@@ -170,9 +170,17 @@ public class WaitingRoom extends javax.swing.JFrame{
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_create_roomActionPerformed
         // TODO add your handling code here:
         try {
+            pw.write((char)CREATEROOM_SIGNAL);
+            pw.flush();
 
+            boolean join = false;
+            GameRoom gameRoom = new GameRoom(join);
 
-
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    gameRoom.setVisible(true);
+                }
+            });
         } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.getMessage());
@@ -184,14 +192,15 @@ public class WaitingRoom extends javax.swing.JFrame{
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_join_roomActionPerformed
         // TODO add your handling code here:
         try {
-
             pw.write((char)JOINROOM_SIGNAL);
             pw.flush();
 
+            boolean join = true;
+            GameRoom gameRoom = new GameRoom(join);
 
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    new GameRoom().setVisible(true);
+                    gameRoom.setVisible(true);
                 }
             });
         } catch (Exception err) {
