@@ -51,7 +51,7 @@ public class CreateRoom extends javax.swing.JFrame{
                             if(room_name.length() == 0) {
                                 throw new Exception("방 제목을 입력해 주세요!");
                             }
-                            else if(room_name.length() < 20) {
+                            else if(room_name.length() >= 20) {
                                 throw new Exception("방 제목을 줄여주세요!");
                             }
                             for (char c : room_name.toCharArray()) {
@@ -64,19 +64,23 @@ public class CreateRoom extends javax.swing.JFrame{
                                             + room_name + "\r\n만들기 성공!", "",
                                     JOptionPane.PLAIN_MESSAGE);
                             jTextField_name.setEditable(false);
+
+
+                            //방이름 보내주어야 함
+                            boolean join = false;
+                            GameRoom gameRoom = new GameRoom(sock, join);
+                            gameRoom.setVisible(true);
+
+                            //이 창 닫아야 함
+                            dispose();
+
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "방 제목 : "
                                             + room_name + "\r\n등록실패!!\r\n" + e.getMessage(),
                                     " 등록실패", JOptionPane.PLAIN_MESSAGE);
                         }
 
-                        //방이름 보내주어야 함
 
-                        boolean join = false;
-                        GameRoom gameRoom = new GameRoom(sock, join);
-                        gameRoom.setVisible(true);
-
-                        //이 창 닫아야 함
 
                     }
                 });

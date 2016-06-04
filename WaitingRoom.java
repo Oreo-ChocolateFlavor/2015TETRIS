@@ -14,6 +14,7 @@ public class WaitingRoom extends javax.swing.JFrame{
     public static final int JOINROOM_SIGNAL = -103;
     public static final int CLOSE_MAINROOM_SIGNAL = -104;
 
+    public boolean isrunning;
 
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JButton jButton_create_room;
@@ -28,6 +29,8 @@ public class WaitingRoom extends javax.swing.JFrame{
 
 
     public WaitingRoom(Socket sock) {
+
+        isrunning = true;
 
         //sock, read, write
         this.sock = sock;
@@ -218,6 +221,8 @@ public class WaitingRoom extends javax.swing.JFrame{
         try {
             pw.write((char)CLOSE_MAINROOM_SIGNAL);
             pw.flush();
+
+            isrunning = false;
 
         } catch (Exception err) {
             // TODO Auto-generated catch block
