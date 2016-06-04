@@ -28,11 +28,11 @@ int pipe_count;
 
 struct room_info
 {
-  char name[200];
+  char name[50];
   int port;
   int maxperson;
   int nowperson;
-}room[100];
+}room[20];
 
 static void sighandler(int sig)
 {
@@ -162,12 +162,16 @@ int main(int argc,char* argv[])
           char pipemessagebuf[1024];
           ReadMessage(p[i].fd[0],pipemessagebuf);
 
-          if(SIG == -110) // 자식이 EXIT했다는 거임.
+          if(SIG == CLOSE_MAINROOM_SIGNAL) // 자식이 EXIT했다는 거임.
           {
             FD_CLR(p[i].fd[0],&oldset);
             p[i].fd[0] = p[pipe_count-1].fd[0];
             p[i].fd[1] = p[pipe_count-1].fd[1];
             pipe_count--;
+          }
+          else if(SIG == JOINROOM_SIGNAL)
+          {
+
           }
         }
       }
@@ -183,6 +187,12 @@ int main(int argc,char* argv[])
 
 void SendRoomList(int* pip)
 {
+  int sig = ROOMINFOSEND_SIGNAL;
+
+  write(pip[1],&sig,1); //부모 서버로 요청을 보냄
+  read() // 자식은 정보를 읽어드린후
+  write() // 클라이언트한테 보냄;
+
   printf("%d in the SendRoomList()\n",getpid());
 }
 
@@ -233,15 +243,16 @@ void ConnectedServer(int connectedsock,int* pip) //커넥트 된후 실행되는
   {
     memset(buf,0,sizeof(buf));
     ReadMessage(connectedsock,buf);
-    if(SIG == ROOMINFOSEND_SIGNAL){ SendRoomList(pip); }
-    else if(SIG == ADDROOM_SIGNAL){ AddRoomList(pip); }
-    else if(SIG == CREATEROOM_SIGNAL){ CreateRoom(pip); }
-    else if(SIG == JOINROOM_SIGNAL){ JoinRoom(pip); }
+    if(SIG == ROOMINFOSEND_SIGNAL){ printf("TEST ROOMINFOSEND_SIGNAL\n"); SendRoomList(pip); }
+    else if(SIG == ADDROOM_SIGNAL){ printf("TEST ADDROOM_SIGNAL\n"); AddRoomList(pip); }
+    else if(SIG == CREATEROOM_SIGNAL){ printf("TEST CREATEROOM_SIGNAL\n"); CreateRoom(pip); }
+    else if(SIG == JOINROOM_SIGNAL){ printf("TEST JOINROOM_SIGNAL\n"); JoinRoom(pip); }
     else if(SIG ==  CLOSE_MAINROOM_SIGNAL)
     {
       printf("READ END SIGNAL\n");
-      char endsignal = -110;
+      char endsignal = CLOSE_MAINROOM_SIGNAL;
       write(pip[1],&endsignal,1);
+      close(connectedsock);
       exit(1);
     }
   }
