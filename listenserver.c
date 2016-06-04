@@ -8,7 +8,6 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdbool.h>
-#include <pthread.h>
 
 #define CREATEROOM_SIGNAL -100
 #define ROOMINFOSEND_SIGNAL -101
@@ -35,15 +34,17 @@ struct room_info
   int nowperson;
 }room[100];
 
-void SendRoomList();
-void AddRoomList();
-void Gameserver();
+static void sighandler(int sig)
+{
+  printf("killed!\n");
+}
+void SendRoomList(int* pip);
+void AddRoomList(int* pip);
+void Gameserver(int* pip);
 void ReadMessage(int sock,char* buf);
 void ConnectedServer(int connectedsock,int* pip);
-void CreateRoom();
-void JoinRoom();
-
-void* ReadFromChildProcess(void* arg);
+void CreateRoom(int* pip);
+void JoinRoom(int* pip);
 
 int main(int argc,char* argv[])
 {
@@ -66,9 +67,18 @@ int main(int argc,char* argv[])
     exit(1);
   }
 
+  int enable = 1;
+
+  if(setsockopt(server_sock,SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < -1)
+  {
+    perror("setsockopt()");
+    exit(1);
+  }             // Option length
+
+
   nfd = server_sock +1;
   FD_ZERO(&oldset);
-  FD_SET(serv_sock,&oldset);
+  FD_SET(server_sock,&oldset);
 
   struct timeval tim;
 
@@ -89,7 +99,7 @@ int main(int argc,char* argv[])
     exit(1);
   }
 
-  signal(SIGCHLD,SIG_IGN);
+  signal(SIGCHLD,sighandler);
   len = sizeof(clientaddr);
   tim.tv_sec =1;
   tim.tv_usec =0;
@@ -115,6 +125,12 @@ int main(int argc,char* argv[])
       p[pipe_count].fd[0] = pipe_sock[0];
       p[pipe_count].fd[1] = pipe_sock[1];
       pipe_count++;
+      FD_SET(pipe_sock[0],&oldset);
+
+      if(nfd < pipe_sock[0])
+      {
+        nfd = pipe_sock[0] +1;
+      }
 
       if(client_sock == -1)
       {
@@ -131,8 +147,6 @@ int main(int argc,char* argv[])
       else if(pid > 0) // 부모면!
       {
         close(client_sock);
-
-
       }
       else if(pid == -1)
       {
@@ -141,13 +155,20 @@ int main(int argc,char* argv[])
       }
     }
     else{
-
       for(int i=0; i<pipe_count; i++)
       {
-        if(FD_ISSET(pipe_sock[0],&newset))
+        if(FD_ISSET(p[0].fd[0],&newset)) // 자식 프로세스로 부터 통신 요청이 들어오면!
         {
+          char pipemessagebuf[1024];
+          ReadMessage(p[i].fd[0],pipemessagebuf);
 
-
+          if(SIG == -110) // 자식이 EXIT했다는 거임.
+          {
+            FD_CLR(p[i].fd[0],&oldset);
+            p[i].fd[0] = p[pipe_count-1].fd[0];
+            p[i].fd[1] = p[pipe_count-1].fd[1];
+            pipe_count--;
+          }
         }
       }
 
@@ -160,65 +181,70 @@ int main(int argc,char* argv[])
 }
 
 
-void SendRoomList()
+void SendRoomList(int* pip)
 {
   printf("%d in the SendRoomList()\n",getpid());
 }
 
-void AddRoomList()
+void AddRoomList(int* pip)
 {
   printf("%d in the AddRoomList()\n",getpid());
 }
 
-void Gameserver()
+void Gameserver(int* pip)
 {
     printf("%d in the Gameserver()\n",getpid());
 }
 
 void ReadMessage(int sock,char* buf)
 {
-  printf("%d in the ReadMessage()\n",getpid());
   int len=sizeof(buf);
   int recvlen=0;
+  char *t = buf;
 
-  while(len!=0 && (recvlen = read(sock,buf,len)))
+  while(len!=0 && (recvlen = read(sock,t,len)))
   {
     len -= recvlen;
-    buf += recvlen;
-
-    if(*(buf-1) < 0)
+    t += recvlen;
+    if(*(t-1) < 0)
       break;
   }
+  SIG = *(t-1);
 
-  SIG = *(buf-1);
-  *(buf-1) = 0;
+
+  printf("<%d> is read  SIG is  = %d  \"%s\"\n",getpid(),SIG,buf);
+
+  *(t-1) = 0;
 }
 
-void JoinRoom()
+void JoinRoom(int* pip)
 {
   printf("%d in the JoinRoom()\n",getpid());
 }
 
-void CreateRoom()
+void CreateRoom(int* pip)
 {
   printf("%d in the CreateRoom()\n",getpid());
 }
 
-void ConnectedServer(int connectedsock) //커넥트 된후 실행되는 놈.
+void ConnectedServer(int connectedsock,int* pip) //커넥트 된후 실행되는 놈.
 {
   char buf[1024];
   while(1)
   {
     memset(buf,0,sizeof(buf));
     ReadMessage(connectedsock,buf);
-
-    if(SIG == ROOMINFOSEND_SIGNAL) SendRoomList();
-    else if(SIG == ADDROOM_SIGNAL)  AddRoomList();
-    else if(SIG == CREATEROOM_SIGNAL) CreateRoom();
-    else if(SIG == JOINROOM_SIGNAL) JoinRoom();
+    if(SIG == ROOMINFOSEND_SIGNAL){ SendRoomList(pip); }
+    else if(SIG == ADDROOM_SIGNAL){ AddRoomList(pip); }
+    else if(SIG == CREATEROOM_SIGNAL){ CreateRoom(pip); }
+    else if(SIG == JOINROOM_SIGNAL){ JoinRoom(pip); }
     else if(SIG ==  CLOSE_MAINROOM_SIGNAL)
     {
+      printf("READ END SIGNAL\n");
+      char endsignal = -110;
+      write(pip[1],&endsignal,1);
       exit(1);
     }
   }
+  printf("in the child : this is never display\n");
 }
