@@ -26,7 +26,8 @@ public class WaitingRoom extends javax.swing.JFrame{
     Socket sock;
     PrintWriter pw;
     BufferedReader br;
-
+    DataOutputStream dout;
+    DataInputStream din;
 
     public WaitingRoom(Socket sock) {
 
@@ -37,7 +38,8 @@ public class WaitingRoom extends javax.swing.JFrame{
         try {
             pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
             br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-
+            dout = new DataOutputStream(sock.getOutputStream());
+            din = new DataInputStream(sock.getInputStream());
         } catch(IOException e) {
             JOptionPane.showMessageDialog(null, "IOException");
         }
@@ -171,12 +173,16 @@ public class WaitingRoom extends javax.swing.JFrame{
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_create_roomActionPerformed
         // TODO add your handling code here:
         try {
-            pw.write((char)CREATEROOM_SIGNAL);
-            pw.flush();
+        	dout.writeByte(CREATEROOM_SIGNAL);
+            dout.flush();
 
             CreateRoom createRoom = new CreateRoom(sock);
+            
+            Client.read_line(din);
+            
             createRoom.setVisible(true);
-
+            
+            
 
             /*java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
@@ -195,8 +201,8 @@ public class WaitingRoom extends javax.swing.JFrame{
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_join_roomActionPerformed
         // TODO add your handling code here:
         try {
-            pw.write((char)JOINROOM_SIGNAL);
-            pw.flush();
+        	dout.writeByte(JOINROOM_SIGNAL);
+            dout.flush();
 
             boolean join = true;
             GameRoom gameRoom = new GameRoom(sock, join);
@@ -219,8 +225,8 @@ public class WaitingRoom extends javax.swing.JFrame{
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_exitActionPerformed
         // TODO add your handling code here:
         try {
-            pw.write((char)CLOSE_MAINROOM_SIGNAL);
-            pw.flush();
+        	dout.writeByte(CLOSE_MAINROOM_SIGNAL);
+            dout.flush();
 
             isrunning = false;
 

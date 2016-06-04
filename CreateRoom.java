@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by JaeSeung on 2016. 6. 4..
@@ -21,7 +22,7 @@ public class CreateRoom extends javax.swing.JFrame{
     Socket sock;
     PrintWriter pw;
     BufferedReader br;
-
+    DataOutputStream dout;
     public CreateRoom(Socket sock) {
         this.sock = sock;
 
@@ -29,7 +30,7 @@ public class CreateRoom extends javax.swing.JFrame{
         try {
             pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
             br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-
+            dout = new DataOutputStream(sock.getOutputStream());
         } catch(IOException e) {
             JOptionPane.showMessageDialog(null, "IOException");
         }
@@ -51,7 +52,8 @@ public class CreateRoom extends javax.swing.JFrame{
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         String room_name = new String();
                         room_name = jTextField_name.getText();
-
+                        
+                        
                         try {
                             if(room_name.length() == 0) {
                                 throw new Exception("방 제목을 입력해 주세요!");
@@ -70,9 +72,13 @@ public class CreateRoom extends javax.swing.JFrame{
                                     JOptionPane.PLAIN_MESSAGE);
                             jTextField_name.setEditable(false);
 
-                            pw.write(room_name.toCharArray(), 0, room_name.length());
-                            pw.write((char)ROOMINFOSEND_SIGNAL);
-                            pw.flush();
+//                          pw.write(room_name.toCharArray(), 0, room_name.length());
+                            
+//                          pw.write((char)ROOMINFOSEND_SIGNAL);
+                            dout.write(room_name.getBytes(StandardCharsets.US_ASCII), 0, room_name.getBytes().length);
+                            dout.writeByte(ROOMINFOSEND_SIGNAL);
+                            dout.flush();
+                            
 
                             //방이름 보내주어야 함
                             boolean join = false;

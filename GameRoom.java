@@ -23,7 +23,7 @@ public class GameRoom extends javax.swing.JFrame{
     Socket sock;
     PrintWriter pw;
     BufferedReader br;
-
+    DataOutputStream dout;
 
     public GameRoom(Socket sock, boolean join) {
         //check join
@@ -33,6 +33,7 @@ public class GameRoom extends javax.swing.JFrame{
         try {
             pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
             br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+            dout = new DataOutputStream(sock.getOutputStream());
 
         } catch(IOException e) {
             JOptionPane.showMessageDialog(null, "IOException");
