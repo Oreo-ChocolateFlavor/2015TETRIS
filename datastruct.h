@@ -14,7 +14,7 @@ struct PIPE
 
 struct room_info
 {
-  char name[50];
+  char name[52];
   int port;
   int maxperson;
   int nowperson;

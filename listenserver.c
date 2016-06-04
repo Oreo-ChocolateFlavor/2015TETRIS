@@ -33,7 +33,7 @@ static void sighandler(int sig)
   }
 
 }
-void SendRoomList(struct PIPE pip);
+void SendRoomList(struct PIPE pip,int connectedsock);
 void AddRoomList(struct PIPE pip,char* buf,int childport);
 void Gameserver(struct PIPE pip,int serverport);
 void ReadMessage(int sock,char* buf);
@@ -43,6 +43,7 @@ void JoinRoom(struct PIPE pip);
 
 int main(int argc,char* argv[])
 {
+
   room_count = 0;
   int server_sock,client_sock;
   int len;
@@ -195,6 +196,10 @@ int main(int argc,char* argv[])
             room_count++;
 
           }
+          else if(SIG == ROOMINFOSEND_SIGNAL){
+            printf("Mainserver: ROOMINFOSEND_SIGNAL recv\n");
+            write(p[i].child[1],&room,sizeof(room));
+          }
           else{
             printf("Nah... error\n");
           }
@@ -207,13 +212,28 @@ int main(int argc,char* argv[])
 }
 
 
-void SendRoomList(struct PIPE pip)
+void SendRoomList(struct PIPE pip,int connectedsock)
 {
+   struct room_info roomarr[30];
+
+   int count =0;
+
   int sig = ROOMINFOSEND_SIGNAL;
 
-//  write(pip[1],&sig,1); //부모 서버로 요청을 보냄
-//  read() // 자식은 정보를 읽어드린후
-//  write() // 클라이언트한테 보냄;
+  write(pip.parent[1],&sig,1); //부모 서버로 요청을 보냄
+  read(pip.child[0],&roomarr,sizeof(roomarr)); // 자식은 정보를 읽어드린후
+
+  for(count=0; count<30; count++)
+  {
+    if(strlen(roomarr[count].name) == 0)
+      break;
+
+    printf("count : %d information: name: %s , port: %d\n",count,roomarr[count].name,roomarr[count].port);
+  }
+  write(connectedsock,&sig,1);
+  if(count != 0)
+    write(connectedsock,&roomarr,sizeof(struct room_info)* count);
+  write(connectedsock,&sig,1);
 
   printf("%d in the SendRoomList()\n",getpid());
 }
@@ -304,8 +324,10 @@ void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실�
   {
     memset(buf,0,sizeof(buf));
     ReadMessage(connectedsock,buf);
-    if(SIG == ROOMINFOSEND_SIGNAL){ printf("TEST ROOMINFOSEND_SIGNAL\n"); SendRoomList(pip);}
-    else if(SIG == CREATEROOM_SIGNAL) {printf("TEST CREATEROOM_SIGNAL\n"); CreateRoom(pip,connectedsock,&nowport);}
+
+
+    if(SIG == ROOMINFOSEND_SIGNAL) SendRoomList(pip,connectedsock);
+    else if(SIG == CREATEROOM_SIGNAL) CreateRoom(pip,connectedsock,&nowport);
     else if(SIG == JOINROOM_SIGNAL){printf("TEST JOINROOM_SIGNAL\n"); JoinRoom(pip); }
     else if(SIG == CLOSE_MAINROOM_SIGNAL)
     {
@@ -315,10 +337,7 @@ void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실�
       close(connectedsock);
       exit(1);
     }
-    else if(SIG == ADDROOM_SIGNAL)
-    {
-      AddRoomList(pip,buf,nowport);
-    }
+    else if(SIG == ADDROOM_SIGNAL) AddRoomList(pip,buf,nowport);
   }
   printf("in the child : this is never display\n");
 }
