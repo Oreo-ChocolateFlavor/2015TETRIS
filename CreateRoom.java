@@ -75,9 +75,12 @@ public class CreateRoom extends javax.swing.JFrame{
                                     throw new Exception("영어로만 입력해주세요!");
                             }
 
+/*
                             JOptionPane.showMessageDialog(null, "방 제목 : "
                                             + room_name + "\r\n만들기 성공!", "",
                                     JOptionPane.PLAIN_MESSAGE);
+*/
+
                             jTextField_name.setEditable(false);
 
 //                          pw.write(room_name.toCharArray(), 0, room_name.length());
@@ -91,9 +94,17 @@ public class CreateRoom extends javax.swing.JFrame{
                             //방이름 보내주어야 함
                             boolean join = false;
                             GameRoom gameRoom = new GameRoom(sock, join);
-                            gameRoom.setVisible(true);
+                            gameRoom.setRoomname(room_name);
+                            //gameRoom.setVisible(true);
 
-                            
+                            //쓰레드로 변경
+                            java.awt.EventQueue.invokeLater(new Runnable() {
+                                public void run() {
+                                    gameRoom.setVisible(true);
+                                }
+                            });
+
+
                             //이 창 닫아야 함
                             dispose();
                             Client.read_line(din,new_sock);

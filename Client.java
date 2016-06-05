@@ -199,14 +199,16 @@ public class Client {
             dout.flush();
             Client.read_line(din,sock);
             WaitingRoom waitingRoom = new WaitingRoom(sock);
-            waitingRoom.setVisible(true);
-/*
+            //waitingRoom.setVisible(true);
+
+			//쓰레드로 변경
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     waitingRoom.setVisible(true);
                 }
             });
 
+			/*
             Thread thread = new Thread() {
                 public void run() {
                     waitingRoom.setVisible(true);

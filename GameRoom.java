@@ -20,6 +20,8 @@ public class GameRoom extends javax.swing.JFrame{
     //dummy
     private javax.swing.JButton jButton_exit;
 
+    String roomname;
+
     Socket sock;
     PrintWriter pw;
     BufferedReader br;
@@ -52,6 +54,7 @@ public class GameRoom extends javax.swing.JFrame{
         jLabel4.setText("Player4");
         jLabel5.setText("Player5");
 
+        roomname = new String();
 
         //join 값 줘서 변경해야함
         //시작은 방장만 할 수 있도록
@@ -252,7 +255,8 @@ public class GameRoom extends javax.swing.JFrame{
 
         setBounds(0, javax.swing.GroupLayout.PREFERRED_SIZE, 1000, 700);
 
-        this.setTitle("Game Room");
+        //this.setTitle("Game Room");
+        this.setTitle(roomname);
         this.add(main_jPanel);
         setResizable(false);// 창 크기 못바꾸게
 
@@ -262,5 +266,9 @@ public class GameRoom extends javax.swing.JFrame{
     public void update_table(Tetris_display tetris, int[][] array) {
         tetris.init();
         tetris.setGrid(array);
+    }
+
+    public void setRoomname(String roomname) {
+        this.roomname = roomname;
     }
 }

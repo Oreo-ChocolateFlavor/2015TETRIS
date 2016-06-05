@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
@@ -177,13 +178,11 @@ public class WaitingRoom extends javax.swing.JFrame{
             dout.flush();
 
             CreateRoom createRoom = new CreateRoom(sock);
-            
-            
+
             createRoom.setVisible(true);
           //  Client.read_line(din);
             
-            
-
+            //쓰레드로 변경 시 아래 코드 사용
             /*java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     gameRoom.setVisible(true);
@@ -201,19 +200,28 @@ public class WaitingRoom extends javax.swing.JFrame{
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_join_roomActionPerformed
         // TODO add your handling code here:
         try {
-        	dout.writeByte(JOINROOM_SIGNAL);
+
+
+            //테이블에서 방정보 받아오기
+            //키값 갖고오려면 아래 숫자 바꾸면 됨
+            final String room_name = (String) model.getValueAt(table.getSelectedRow(), 0);
+            //임시
+            dout.write(room_name.getBytes(StandardCharsets.US_ASCII), 0, room_name.getBytes().length);
+
+            dout.writeByte(JOINROOM_SIGNAL);
             dout.flush();
 
             boolean join = true;
             GameRoom gameRoom = new GameRoom(sock, join);
-            gameRoom.setVisible(true);
+            gameRoom.setRoomname(room_name);
+            //gameRoom.setVisible(true);
 
-            /*java.awt.EventQueue.invokeLater(new Runnable() {
+            //쓰레드로 변경
+            java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     gameRoom.setVisible(true);
                 }
             });
-            */
         } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.getMessage());
