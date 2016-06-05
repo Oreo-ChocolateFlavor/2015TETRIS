@@ -6,6 +6,9 @@ import java.io.*;
 
 
 public class Client {
+
+	private static room_info[] data;
+
 	private static String host_ip; //To store host_ip
 	public static Socket connect_gameserver(Socket sock, int port, String ip) //connecting client to game_server
 	{
@@ -61,7 +64,7 @@ public class Client {
 								System.out.println("test");
 								
 								int j=(index+1)/64;
-								room_info[] data = new room_info[j];
+								data = new room_info[j];
 								String tmp_name = "";
 								int tmp_port = 0;
 								int tmp_maxperson =0;
@@ -199,6 +202,7 @@ public class Client {
             dout.flush();
             Client.read_line(din,sock);
             WaitingRoom waitingRoom = new WaitingRoom(sock);
+			waitingRoom.setRoom_info(data);
             //waitingRoom.setVisible(true);
 
 			//쓰레드로 변경

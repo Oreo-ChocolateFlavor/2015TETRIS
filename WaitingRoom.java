@@ -16,6 +16,8 @@ public class WaitingRoom extends javax.swing.JFrame{
     public static final int CLOSE_MAINROOM_SIGNAL = -104;
 
     public boolean isrunning;
+    //room_info
+    private room_info[] data;
 
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JButton jButton_create_room;
@@ -82,17 +84,7 @@ public class WaitingRoom extends javax.swing.JFrame{
                     }
                 });
 
-        //TABLE initiate
-        ArrayList<String[]> tmplist = new ArrayList<String[]>();
-        for (int i = 0; i < 30; i++) {
-            String[] item = {"Room " + i,
-                    "Name " + i, "Port " + i, "User " + i};
-            tmplist.add(item);
-        }
-        int size2 = tmplist.size();
-        for (int i = 0; i < size2; i++) {
-            model.addRow(tmplist.get(i));
-        }
+
 
         //Layout
         javax.swing.GroupLayout main_jPanelLayout = new javax.swing.GroupLayout(
@@ -245,6 +237,21 @@ public class WaitingRoom extends javax.swing.JFrame{
         }
 
     }// GEN-LAST:jButton_exitActionPerformed
+
+    public void setRoom_info(room_info[] data) {
+        this.data = data;
+        //TABLE initiate
+        ArrayList<String[]> tmplist = new ArrayList<String[]>();
+        for (int i = 0; i < data.length; i++) {
+            String[] item = {"No. " + i, data[i].name,
+                    ""+ data[i].port, data[i].nowperson + "/" + data[i].maxperson};
+            tmplist.add(item);
+        }
+        int size2 = tmplist.size();
+        for (int i = 0; i < size2; i++) {
+            model.addRow(tmplist.get(i));
+        }
+    }
 
 /*
 
