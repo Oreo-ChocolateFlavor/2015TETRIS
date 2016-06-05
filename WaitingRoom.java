@@ -22,6 +22,7 @@ public class WaitingRoom extends javax.swing.JFrame{
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JButton jButton_create_room;
     private javax.swing.JButton jButton_join_room;
+    private javax.swing.JButton jButton_search;
     private javax.swing.JButton jButton_exit;
     private JTable table;
     private DefaultTableModel model;
@@ -51,6 +52,7 @@ public class WaitingRoom extends javax.swing.JFrame{
         main_jPanel = new javax.swing.JPanel();
         jButton_create_room = new javax.swing.JButton();
         jButton_join_room = new javax.swing.JButton();
+        jButton_search = new javax.swing.JButton();
         jButton_exit = new javax.swing.JButton();
 
         //TABLE
@@ -73,6 +75,14 @@ public class WaitingRoom extends javax.swing.JFrame{
                 .addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         jButton_join_roomActionPerformed(evt);
+                    }
+                });
+
+        jButton_search.setText("Refresh Table");
+        jButton_search
+                .addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        jButton_searchActionPerformed(evt);
                     }
                 });
 
@@ -118,6 +128,11 @@ public class WaitingRoom extends javax.swing.JFrame{
                                                                 javax.swing.GroupLayout.DEFAULT_SIZE,
                                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                                         .addComponent(
+                                                                jButton_search,
+                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(
                                                                 jButton_exit,
                                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
                                                                 javax.swing.GroupLayout.DEFAULT_SIZE,
@@ -149,7 +164,13 @@ public class WaitingRoom extends javax.swing.JFrame{
                                                 jButton_join_room)
                                         .addPreferredGap(
                                                 LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addGap(180, 180, 180)
+                                        .addGap(30, 30, 30)
+                                        .addComponent(
+                                                jButton_search)
+                                        .addPreferredGap(
+                                                LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGap(30, 30, 30)
+                                        //.addGap(180, 180, 180)
                                         .addComponent(
                                                 jButton_exit))
                 );
@@ -196,7 +217,7 @@ public class WaitingRoom extends javax.swing.JFrame{
 
             //테이블에서 방정보 받아오기
             //키값 갖고오려면 아래 숫자 바꾸면 됨
-            final String room_name = (String) model.getValueAt(table.getSelectedRow(), 0);
+            final String room_name = (String) model.getValueAt(table.getSelectedRow(), 2);
             //임시
             dout.write(room_name.getBytes(StandardCharsets.US_ASCII), 0, room_name.getBytes().length);
 
@@ -220,6 +241,18 @@ public class WaitingRoom extends javax.swing.JFrame{
         }
 
     }// GEN-LAST:jButton_join_roomActionPerformed
+
+    private void jButton_searchActionPerformed(
+            java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_searchActionPerformed
+        // TODO add your handling code here:
+        try {
+
+        } catch (Exception err) {
+            // TODO Auto-generated catch block
+            JOptionPane.showMessageDialog(null, err.getMessage());
+        }
+
+    }// GEN-LAST:jButton_searchActionPerformed
 
     private void jButton_exitActionPerformed(
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_exitActionPerformed
