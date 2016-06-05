@@ -270,5 +270,6 @@ public class GameRoom extends javax.swing.JFrame{
 
     public void setRoomname(String roomname) {
         this.roomname = roomname;
-    }
+        this.setTitle(roomname);
+        }
 }

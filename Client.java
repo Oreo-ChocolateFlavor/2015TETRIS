@@ -10,6 +10,12 @@ public class Client {
 	private static room_info[] data;
 
 	private static String host_ip; //To store host_ip
+	
+	public static String getip()
+	{
+		return host_ip;
+	}
+	
 	public static Socket connect_gameserver(Socket sock, int port, String ip) //connecting client to game_server
 	{
 		try {
@@ -25,7 +31,7 @@ public class Client {
 		return sock;
 	}
 	
-	public static void read_line(DataInputStream din, Socket new_sock) //read and check by the signal
+	public static Socket read_line(DataInputStream din, Socket new_sock) //read and check by the signal
 	{
 		
 		byte[] buf = new byte[CreateRoom.BUF_SIZE];
@@ -143,7 +149,7 @@ public class Client {
 			e.printStackTrace();
 		}
 		byte[] rtn = new byte[++index];
-	//	return rtn = buf;
+		return new_sock;
 		
 	}
 
@@ -167,6 +173,7 @@ public class Client {
         }
 
         Socket sock = null;
+        Socket dummy_sock = null;
         BufferedReader br = null;
         PrintWriter pw = null;
         DataOutputStream dout;
@@ -199,8 +206,8 @@ public class Client {
 
              //make WaitingRoom
             dout.writeByte(CreateRoom.ROOMINFOSEND_SIGNAL);
-            dout.flush();
-            Client.read_line(din,sock);
+            dout.flush(); 
+            Client.read_line(din,dummy_sock);
             WaitingRoom waitingRoom = new WaitingRoom(sock);
 			waitingRoom.setRoom_info(data);
             //waitingRoom.setVisible(true);

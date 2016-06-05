@@ -28,11 +28,12 @@ public class WaitingRoom extends javax.swing.JFrame{
     private DefaultTableModel model;
 
     Socket sock;
+    Socket new_sock;
     PrintWriter pw;
     BufferedReader br;
     DataOutputStream dout;
     DataInputStream din;
-
+    
     public WaitingRoom(Socket sock) {
 
         isrunning = true;
@@ -187,8 +188,7 @@ public class WaitingRoom extends javax.swing.JFrame{
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_create_roomActionPerformed
         // TODO add your handling code here:
         try {
-        	dout.writeByte(CREATEROOM_SIGNAL);
-            dout.flush();
+        	
 
             CreateRoom createRoom = new CreateRoom(sock);
 
@@ -219,23 +219,40 @@ public class WaitingRoom extends javax.swing.JFrame{
             //키값 갖고오려면 아래 숫자 바꾸면 됨
             final String room_name = (String) model.getValueAt(table.getSelectedRow(), 2);
             //임시
-            dout.write(room_name.getBytes(StandardCharsets.US_ASCII), 0, room_name.getBytes().length);
-
             dout.writeByte(JOINROOM_SIGNAL);
+            dout.writeInt(Integer.parseInt(room_name));
             dout.flush();
+            byte tmpbuf;
+            System.out.println("point8");
+            tmpbuf = din.readByte();
+            System.out.println("point9"+tmpbuf);
+            
+            if(tmpbuf == CreateRoom.FULLL_ROOM_SIG)
+            {
+            	System.out.println("Full_Room_signal get");
+            }
+            else if(tmpbuf ==CreateRoom.NO_EXIST_ROOM )
+            {
+            	System.out.println("No_exist_room_sig get");
+            }
+            else if(tmpbuf == CreateRoom.AVAIL_ROOM_SIG)
+            {
+            	System.out.println("point10");
+            	new_sock = Client.connect_gameserver(new_sock, Integer.parseInt(room_name), Client.getip());
+            	boolean join = true;
+            	System.out.println("point11");
+                GameRoom gameRoom = new GameRoom(new_sock, join);
+                gameRoom.setRoomname(room_name);
+                //gameRoom.setVisible(true);
 
-            boolean join = true;
-            GameRoom gameRoom = new GameRoom(sock, join);
-            gameRoom.setRoomname(room_name);
-            //gameRoom.setVisible(true);
-
-            //쓰레드로 변경
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    gameRoom.setVisible(true);
-                }
-            });
-        } catch (Exception err) {
+                //쓰레드로 변경
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        gameRoom.setVisible(true);
+                    }
+                });
+            }
+                    } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.getMessage());
         }
@@ -276,7 +293,7 @@ public class WaitingRoom extends javax.swing.JFrame{
         //TABLE initiate
         ArrayList<String[]> tmplist = new ArrayList<String[]>();
         for (int i = 0; i < data.length; i++) {
-            String[] item = {"No. " + i, data[i].name,
+            String[] item = {"No. " + (i+1), data[i].name,
                     ""+ data[i].port, data[i].nowperson + "/" + data[i].maxperson};
             tmplist.add(item);
         }

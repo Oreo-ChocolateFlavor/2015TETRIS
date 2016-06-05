@@ -8,13 +8,17 @@ import java.nio.charset.StandardCharsets;
  */
 public class CreateRoom extends javax.swing.JFrame{
 
-    public static final int CREATEROOM_SIGNAL = -100;
-    public static final int ROOMINFOSEND_SIGNAL = -101;
-    public static final int ADDROOM_SIGNAL = -102;
-    public static final int JOINROOM_SIGNAL = -103;
-    public static final int CLOSE_MAINROOM_SIGNAL = -104;
-    public static final int PORT_SIG = -105;
-    public static final int CHANGE_OWNER_SIG = -106;
+    public static final byte CREATEROOM_SIGNAL = -100;
+    public static final byte ROOMINFOSEND_SIGNAL = -101;
+    public static final byte ADDROOM_SIGNAL = -102;
+    public static final byte JOINROOM_SIGNAL = -103;
+    public static final byte CLOSE_MAINROOM_SIGNAL = -104;
+    public static final byte PORT_SIG = -105;
+    public static final byte CHANGE_OWNER_SIG = -106;
+    public static final byte DESTORY_ROOM_SIG = -107;
+    public static final byte FULLL_ROOM_SIG = -108;
+    public static final byte NO_EXIST_ROOM = -109;
+    public static final byte AVAIL_ROOM_SIG = -110;
     
     public static final int BUF_SIZE = 1024;
     
@@ -80,7 +84,8 @@ public class CreateRoom extends javax.swing.JFrame{
                                             + room_name + "\r\n만들기 성공!", "",
                                     JOptionPane.PLAIN_MESSAGE);
 */
-
+                            dout.writeByte(CREATEROOM_SIGNAL);
+                            dout.flush();
                             jTextField_name.setEditable(false);
 
 //                          pw.write(room_name.toCharArray(), 0, room_name.length());
@@ -92,9 +97,17 @@ public class CreateRoom extends javax.swing.JFrame{
                             
                             
                             //방이름 보내주어야 함
+
+                            System.out.println("Point1");
+                            new_sock = Client.read_line(din,new_sock);
+                            System.out.println("Point2");
                             boolean join = false;
-                            GameRoom gameRoom = new GameRoom(sock, join);
+                            System.out.println("Point3");
+                            if(new_sock==null)
+                            	System.out.println("new_sock is null");
+                            GameRoom gameRoom = new GameRoom(new_sock, join);
                             gameRoom.setRoomname(room_name);
+                            System.out.println("Point4");
                             //gameRoom.setVisible(true);
 
                             //쓰레드로 변경
@@ -107,7 +120,6 @@ public class CreateRoom extends javax.swing.JFrame{
 
                             //이 창 닫아야 함
                             dispose();
-                            Client.read_line(din,new_sock);
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "방 제목 : "
                                             + room_name + "\r\n등록실패!!\r\n" + e.getMessage(),
