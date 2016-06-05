@@ -19,6 +19,7 @@ public class GameRoom extends javax.swing.JFrame{
 
     //dummy
     private javax.swing.JButton jButton_exit;
+    private javax.swing.JButton jButton_start;
 
     String roomname;
 
@@ -29,11 +30,13 @@ public class GameRoom extends javax.swing.JFrame{
     DataInputStream din;
     DataOutputStream dout_listen;
     DataInputStream din_listen;
+
     public GameRoom(Socket sock, boolean join) {
         //check join
         this.join = join;
         //sock, read, write
         this.sock = sock;
+
         try {
             pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
             br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
@@ -145,6 +148,32 @@ public class GameRoom extends javax.swing.JFrame{
                     }
                 });
 
+        jButton_start = new javax.swing.JButton();
+        jButton_start.setText("Start");
+        jButton_start
+                .addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+
+                        if(join) {
+                            tetris.newGame();
+
+                            /*try {
+                                dout.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
+                                dout.flush();
+
+                                dout_listen.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
+                                dout_listen.writeByte(sock.getPort());
+                                System.out.println("client_port = "+sock.getPort());
+                                dout_listen.flush();
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }*/
+                        }
+
+                    }
+                });
+
         Tetris_display tetris3 = new Tetris_display();
         tetris3.init();
         Tetris_display tetris4 = new Tetris_display();
@@ -171,6 +200,7 @@ public class GameRoom extends javax.swing.JFrame{
                                         .addGap(18, 18, 18)
                                         .addComponent(jLabel1)
                                         .addComponent(jButton_exit)
+                                        .addComponent(jButton_start)
                         )
                         .addGap(18, 18, 18)
                         .addGroup(
@@ -243,6 +273,7 @@ public class GameRoom extends javax.swing.JFrame{
                                                         .addGap(18, 18, 18)
                                                         .addComponent(jLabel1)
                                                         .addComponent(jButton_exit)
+                                                        .addComponent(jButton_start)
                                         )
                                         .addGap(30, 30, 30)
                                         .addGroup(
