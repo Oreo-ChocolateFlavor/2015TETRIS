@@ -26,7 +26,9 @@ public class GameRoom extends javax.swing.JFrame{
     PrintWriter pw;
     BufferedReader br;
     DataOutputStream dout;
-
+    DataInputStream din;
+    DataOutputStream dout_listen;
+    DataInputStream din_listen;
     public GameRoom(Socket sock, boolean join) {
         //check join
         this.join = join;
@@ -36,7 +38,9 @@ public class GameRoom extends javax.swing.JFrame{
             pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
             br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
             dout = new DataOutputStream(sock.getOutputStream());
-
+            din = new DataInputStream(sock.getInputStream());
+            dout_listen = new DataOutputStream(Client.sock.getOutputStream());
+            din_listen = new DataInputStream(Client.sock.getInputStream());
         } catch(IOException e) {
             JOptionPane.showMessageDialog(null, "IOException");
         }
@@ -102,6 +106,42 @@ public class GameRoom extends javax.swing.JFrame{
                                 }
                             }
                         update_table(tetris2, array);
+                        if(join == true)
+                        {
+                        	try {
+								dout.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
+								dout.flush();
+
+								dout_listen.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
+								dout_listen.writeByte(sock.getPort());
+								System.out.println("client_port = "+sock.getPort());
+								dout_listen.flush();
+                        	} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+                            
+                        }
+                        else if(join == false)
+                        {
+                        	try {
+								dout.writeByte(CreateRoom.DESTORY_ROOM_SIG);
+								dout.flush();
+
+								dout_listen.writeByte(CreateRoom.DESTORY_ROOM_SIG);
+								dout_listen.writeByte(sock.getPort());
+								dout_listen.flush();
+                        	} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+                            
+                        }
+                        else
+                        {
+                        	System.out.println("Exit room error");
+                        }
+                        dispose();
                     }
                 });
 

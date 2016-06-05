@@ -8,9 +8,17 @@ import java.io.*;
 public class Client {
 
 	private static room_info[] data;
-
+	public static Socket sock = null;
 	private static String host_ip; //To store host_ip
 	
+	public static room_info[] getData() {
+		return data;
+	}
+
+	public static void setData(room_info[] data) {
+		Client.data = data;
+	}
+
 	public static String getip()
 	{
 		return host_ip;
@@ -70,7 +78,7 @@ public class Client {
 								System.out.println("test");
 								
 								int j=(index+1)/64;
-								data = new room_info[j];
+								setData(new room_info[j]);
 								String tmp_name = "";
 								int tmp_port = 0;
 								int tmp_maxperson =0;
@@ -111,7 +119,7 @@ public class Client {
 									tmp_nowperson = byteToint(tmp_byte);
 									System.out.println("HEEDONG");
 									
-									data[k] = new room_info(tmp_name, tmp_port, tmp_maxperson, tmp_nowperson);
+									getData()[k] = new room_info(tmp_name, tmp_port, tmp_maxperson, tmp_nowperson);
 									System.out.println(k+"th name:"+tmp_name+"port"+tmp_port+"max"+tmp_maxperson+"now"+tmp_nowperson);
 								}	
 								
@@ -172,7 +180,7 @@ public class Client {
             System.exit(1);
         }
 
-        Socket sock = null;
+       
         Socket dummy_sock = null;
         BufferedReader br = null;
         PrintWriter pw = null;
@@ -209,7 +217,7 @@ public class Client {
             dout.flush(); 
             Client.read_line(din,dummy_sock);
             WaitingRoom waitingRoom = new WaitingRoom(sock);
-			waitingRoom.setRoom_info(data);
+			waitingRoom.setRoom_info(getData());
             //waitingRoom.setVisible(true);
 
 			//쓰레드로 변경
@@ -290,4 +298,6 @@ public class Client {
 
         }
     }
+
+
 }

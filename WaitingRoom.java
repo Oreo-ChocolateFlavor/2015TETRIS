@@ -263,7 +263,12 @@ public class WaitingRoom extends javax.swing.JFrame{
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_searchActionPerformed
         // TODO add your handling code here:
         try {
-
+        	dout.writeByte(CreateRoom.ROOMINFOSEND_SIGNAL);
+            dout.flush();
+            
+            Client.read_line(din, new_sock);
+            setRoom_info(Client.getData());
+        		
         } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.getMessage());
@@ -290,6 +295,7 @@ public class WaitingRoom extends javax.swing.JFrame{
 
     public void setRoom_info(room_info[] data) {
         this.data = data;
+        model.setRowCount(0);
         //TABLE initiate
         ArrayList<String[]> tmplist = new ArrayList<String[]>();
         for (int i = 0; i < data.length; i++) {
