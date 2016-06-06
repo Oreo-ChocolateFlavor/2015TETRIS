@@ -5,6 +5,11 @@
 #define CLOSE_MAINROOM_SIGNAL -104 // 대기방을 close 할떄
 #define PORT_SIG -105; //포트를 보낼때 쓰이는  SIGNAL
 #define CHANGE_OWNER_SIG -106 // 방장이 바뀌었을때 보내는 시그널.
+#define DESTROY_ROOM_SIG -107 //방이 없어질때 들어오는 시그널.
+#define FULL_ROOM_SIG -108 // 방 인원이 다찼을때
+#define NO_EXIST_ROOM -109 // 방 이 없을때.
+#define AVAIL_ROOM_SIG -110 // 방이 이용가능 할떄
+#define LEAVE_GAMEROOM_SIG  -111 // 게임룸에서 사용자가 나갈때
 
 struct PIPE
 {
