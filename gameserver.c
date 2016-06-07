@@ -78,24 +78,26 @@ void Gameserver(struct PIPE pip,int serverport)
       perror("gameserver select()");
       continue;
     }
+    else{
+      fprintf(stderr,"멀티플렉싱 진행중");
+    }
 
     if(FD_ISSET(gameserver_sock,&newset)) // join 요청이 들어올때
     {
-
-      printf("CREATE 또는 JOIN이 일어남.\n");
-
       client_sock = accept(gameserver_sock,(struct sockaddr*)&client_addr,(socklen_t*)&len);
       per[persontop].client_sock = client_sock;
 
       FD_SET(client_sock,&oldset);
 
-      if(nfd < client_sock)
+      if(nfd <= client_sock)
       {
         nfd = client_sock +1;
       }
 
       if(persontop == 0) owner = client_sock;
       persontop++;
+
+      printf("ACCEPT %d %d\n",client_sock,nfd);
     }
     else
     {
@@ -104,21 +106,26 @@ void Gameserver(struct PIPE pip,int serverport)
       {
         if(FD_ISSET(per[i].client_sock,&newset))
         {
+          printf("%d 소켓이 변함\n",per[i].client_sock);
+
           char buf[1024] = "";
           ReadGameserver(per[i].client_sock,buf);
 
-          if(recvgamesig == LEAVE_GAMEROOM_SIG)
-          {printf("%c[1;33m",27);
+          if(recvgamesig == (char)LEAVE_GAMEROOM_SIG)
+          {
+            printf("%c[1;33m\n",27);
             printf("IN THE GAMEROOM\n");
             printf("야! 방떠나장!!\n");
-              printf("%c[0m\n",27);
+            printf("%c[0m\n",27);
+            fflush(stdout);
           }
-          else if(recvgamesig == DESTROY_ROOM_SIG)
+          else if(recvgamesig == (char)DESTROY_ROOM_SIG)
           {
-printf("%c[1;33m",27);
-              printf("IN THE GAMEROOM\n");
+            printf("%c[1;33m\n",27);
+            printf("IN THE GAMEROOM\n");
             printf("방파괴하자!\n");
-              printf("%c[0m\n",27);
+            printf("%c[0m\n",27);
+            fflush(stdout);
           }
         }
       }
@@ -137,6 +144,7 @@ printf("%c[1;33m",27);
 
 void ReadGameserver(int sock,char* buf) // 버그의 소지가 있음.. 고치는 것은 생각을좀 해보자.
 {
+  memset(buf,0,1024);
   int len=sizeof(buf);
   int recvlen=0;
   char *t = buf;

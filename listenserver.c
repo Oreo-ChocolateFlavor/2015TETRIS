@@ -23,13 +23,12 @@ int room_count;
 
 static void sighandler(int sig)
 {
-  printf("killed!\n");
   int status;
   pid_t id = waitpid(-1,&status,WNOHANG);
 
   if(WIFEXITED(status))
   {
-    printf("ZOMBIE is killed\n");
+    printf("fork()된 것이 죽음\n");
   }
 
 }
@@ -130,7 +129,7 @@ int main(int argc,char* argv[])
 
       FD_SET(p[pipe_count].parent[0],&oldset);
 
-      if(nfd < p[pipe_count].parent[0])
+      if(nfd <= p[pipe_count].parent[0])
       {
         nfd = p[pipe_count].parent[0]+1;
       }
@@ -228,9 +227,7 @@ int main(int argc,char* argv[])
           else if(SIG == ADDROOM_SIGNAL)
           {
             printf("Mainserver: ADDROOM_SIGNAL recv\n");
-
             read(p[i].parent[0],&room[room_count],sizeof(struct room_info));
-
             printf("ADDROOM_SIGNAL name: %s port: %d\n",room[room_count].name,room[room_count].port);
             room_count++;
 
@@ -275,7 +272,6 @@ void SendRoomList(struct PIPE pip,int connectedsock)
     write(connectedsock,&roomarr,sizeof(struct room_info)* count);
   write(connectedsock,&sig,1);
 
-  printf("%d in the SendRoomList()\n",getpid());
 }
 
 void AddRoomList(struct PIPE pip,char* buf,int childport)
@@ -354,9 +350,6 @@ void CreateRoom(struct PIPE pip,int connectedsock,int* childport) // 여기서 �
   {
 
   }
-
-  printf("%d in the CreateRoom() %d\n",getpid(),gameserverport);
-
 }
 
 void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실행되는 놈.
@@ -387,7 +380,9 @@ void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실�
     }
     else if(SIG == CLOSE_MAINROOM_SIGNAL)
     {
+      printf("%c[1;33m",27);
       printf("<PID: %d>READ END SIGNAL %d\n",getpid(),pip.parent[1]);
+      printf("%c[1;33m",27);
       char endsignal = CLOSE_MAINROOM_SIGNAL;
       write(pip.parent[1],&endsignal,1);
       close(connectedsock);
@@ -398,28 +393,40 @@ void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실�
     {
       read(connectedsock,buf,sizeof(int));
       int recvport = 0;
-      *((char*)&recvport + 0) = buf[1];
+      *((char*)&recvport + 0) = buf[3];
       *((char*)&recvport + 1) = buf[2];
-      *((char*)&recvport + 2) = buf[3];
-      *((char*)&recvport + 3) = buf[4];
+      *((char*)&recvport + 2) = buf[1];
+      *((char*)&recvport + 3) = buf[0];
 
       printf("%c[1;33m",27);
       printf("방떠남 get PORT: %d\n",recvport);
-      printf("%c[0m\n",27);
+      printf("%c[1;33m",27);
+      fflush(stdout);
     }
     else if(SIG == DESTROY_ROOM_SIG)
     {
       read(connectedsock,buf,sizeof(int));
       int recvport = 0;
-      *((char*)&recvport + 0) = buf[1];
+      *((char*)&recvport + 0) = buf[3];
       *((char*)&recvport + 1) = buf[2];
-      *((char*)&recvport + 2) = buf[3];
-      *((char*)&recvport + 3) = buf[4];
+      *((char*)&recvport + 2) = buf[1];
+      *((char*)&recvport + 3) = buf[0];
       printf("%c[1;33m",27);
       printf("호스트가 방파괴! port: %d",recvport);
       printf("%c[0m\n",27);
+      fflush(stdout);
+    }
+    else if(SIG == 0)
+    {
+      printf("%c[1;35m",27);
+      printf("비정상적인 종료!\n");
+      printf("%c[0m\n",27);
+      char endsignal = CLOSE_MAINROOM_SIGNAL;
+      write(pip.parent[1],&endsignal,1);
+      close(connectedsock);
+      fflush(stdout);
+      exit(1);
     }
   }
 
-  printf("in the child : this is never display\n");
 }
