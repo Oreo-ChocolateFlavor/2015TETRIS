@@ -538,8 +538,9 @@ public class Tetris extends Applet {
         timer = null;
     }
 
-    private void startGame() {
-        timer.setDelay(INITIAL_DELAY);
+    public void startGame() {
+    //    private void startGame() {
+            timer.setDelay(INITIAL_DELAY);
         timer.setPaused(false);
         start_newgame_butt.setLabel("Start New Game");
         pause_resume_butt.setEnabled(true); // stays enabled from here on

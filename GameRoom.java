@@ -154,8 +154,9 @@ public class GameRoom extends javax.swing.JFrame{
                 .addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
 
-                        if(join) {
-                            tetris.newGame();
+                        if(!join) {
+                            //tetris.newGame();
+                            //tetris.start();
 
                             /*try {
                                 dout.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
@@ -199,8 +200,12 @@ public class GameRoom extends javax.swing.JFrame{
                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18)
                                         .addComponent(jLabel1)
-                                        .addComponent(jButton_exit)
-                                        .addComponent(jButton_start)
+                                        .addGroup(
+                                                main_jPanelLayout
+                                                        .createParallelGroup()
+                                                        .addComponent(jButton_exit)
+                                                        .addComponent(jButton_start)
+                                        )
                         )
                         .addGap(18, 18, 18)
                         .addGroup(
@@ -272,8 +277,12 @@ public class GameRoom extends javax.swing.JFrame{
                                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                                         .addGap(18, 18, 18)
                                                         .addComponent(jLabel1)
-                                                        .addComponent(jButton_exit)
-                                                        .addComponent(jButton_start)
+                                                        .addGroup(
+                                                                main_jPanelLayout
+                                                                        .createSequentialGroup()
+                                                                        .addComponent(jButton_exit)
+                                                                        .addComponent(jButton_start)
+                                                        )
                                         )
                                         .addGap(30, 30, 30)
                                         .addGroup(

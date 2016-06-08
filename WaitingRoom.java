@@ -218,6 +218,7 @@ public class WaitingRoom extends javax.swing.JFrame{
             //테이블에서 방정보 받아오기
             //키값 갖고오려면 아래 숫자 바꾸면 됨
             final String room_name = (String) model.getValueAt(table.getSelectedRow(), 2);
+            //final String room_name = (String) model.getValueAt(table.getSelectedRow(), 1);
             //임시
             dout.writeByte(JOINROOM_SIGNAL);
             dout.writeInt(Integer.parseInt(room_name));
