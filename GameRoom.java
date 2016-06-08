@@ -580,117 +580,79 @@ public class GameRoom extends javax.swing.JFrame{
 					
 					player_board = new byte[5][18][10];
 					int[][][] player_board_int = new int[5][18][10];
-					byte[] temp_board = new byte[200];
+					
+					byte id1,id2,id3,id4,id5;
+					
+					byte[][] temp_board = new byte[5][180];
+					
 					byte temp_buf = (byte)0;
+					
+					din.read(temp_board[0], 0, 180);
+					id1 = din.readByte();
+					
+					din.read(temp_board[1], 0, 180);
+					id2 = din.readByte();
+					
+					din.read(temp_board[2], 0, 180);
+					id3 = din.readByte();
+					
+					din.read(temp_board[3], 0, 180);
+					id4 = din.readByte();
+					
+					din.read(temp_board[4], 0, 180);
+					id5 = din.readByte();
+					
+					
 					for(int i=0; i<5; i++)
 					{
-						if(id == i)
-							continue;
-						else
-						{
-							for(int j=0; j<CreateRoom.BUF_SIZE; j++)
-							{
-								try {
-									temp_buf = din.readByte();
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								if(temp_buf <0)
-								{
-									if(temp_buf == -1)
-									{
-										System.out.println("in the Boread Id : " + temp_buf);
-										
-										for(int k=0; k<18; k++)
-										{
-											for(int l=0; l<10; l++)
-											{
-												player_board[0][k][l] = temp_board[k*10+l];
-												System.out.print(player_board[0][k][l]+" ");
-												
-											}
-											System.out.println("");
-										}
-										
-										
-										
-										
-										break;
-									}
-									else if(temp_buf == -2)
-									{
-										System.out.println("in the Boread Id : " + temp_buf);
-										for(int k=0; k<18; k++)
-										{
-											for(int l=0; l<10; l++)
-											{
-												player_board[1][k][l] = temp_board[k*10+l];
-												System.out.print(player_board[1][k][l]+" ");
-											}
-											System.out.println("");
-										}
-										break;
-									}
-									else if(temp_buf == -3)
-									{
-										for(int k=0; k<18; k++)
-										{
-											for(int l=0; l<10; l++)
-											{
-												player_board[2][k][l] = temp_board[k*10+l];
-											}
-										}
-										break;
-									}
-									else if(temp_buf == -4)
-									{
-										for(int k=0; k<18; k++)
-										{
-											for(int l=0; l<10; l++)
-											{
-												player_board[3][k][l] = temp_board[k*10+l];
-											}
-										}	
-										break;
-									}
-									else if(temp_buf == -5)
-									{
-										for(int k=0; k<18; k++)
-										{
-											for(int l=0; l<10; l++)
-											{
-												player_board[4][k][l] = temp_board[k*10+l];
-											}
-										}
-										break;
-									}
-								}
-								else
-								{
-									temp_board[j] = temp_buf;
-								}
-							}
-						}
-					}
-				
-					for(int i=0; i<5; i++)
+					
+					for(int j=0; j<18; j++)
 					{
-						for(int j=0; j<18; j++)
+						for(int k=0; k<10; k++)
 						{
-							for(int k=0; k<10; k++)
-							{
-								if(player_board[i][j][k]==1)
-								{
-									player_board_int[i][j][k]=1;
-								}
-								else
-								{
-									player_board_int[i][j][k]=-1;
-								}
-							}
+							if(temp_board[i][j*10 + k]==1)
+								player_board_int[i][j][k]=1;
+							else
+								player_board_int[i][j][k]=-1;
+							
 						}
 					}
+					}
+					
+					
+//					for(int i=0; i<5; i++)
+//					{
+//						for(int j=0; j<18; j++)
+//						{
+//							for(int k=0; k<10; k++)
+//							{
+//								if(player_board[i][j][k]==1)
+//								{
+//									player_board_int[i][j][k]=1;
+//								}
+//								else
+//								{
+//									player_board_int[i][j][k]=-1;
+//								}
+//							}
+//						}
+//					}
+					
+					
+//					for(int i=0; i<18; i++)
+//					{
+//						for(int j=0; j<10; j++)
+//						{
+//							System.out.print(player_board_int[0][i][j] + " ");
+//						}
+//						
+//						System.out.println("");
+//					}
+//
+					
+					
+					
+					
 					int index=0;
 					for(int i=0; i<5; i++)
 					{
