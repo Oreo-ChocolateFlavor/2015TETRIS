@@ -505,120 +505,8 @@ public class GameRoom extends javax.swing.JFrame{
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			array_tetris.add(0, tetris2);
-			array_tetris.add(1, tetris3);
-			array_tetris.add(2, tetris4);
-			array_tetris.add(3, tetris5);
 			
-			player_board = new byte[5][18][10];
-			int[][][] player_board_int = new int[5][18][10];
-			byte[] temp_board = new byte[200];
-			byte temp_buf = (byte)0;
-			for(int i=0; i<5; i++)
-			{
-				if(id == i)
-					continue;
-				else
-				{
-					for(int j=0; j<CreateRoom.BUF_SIZE; j++)
-					{
-						try {
-							temp_buf = din.readByte();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						if(temp_buf <0)
-						{
-							if(temp_buf == -1)
-							{
-								for(int k=0; k<18; k++)
-								{
-									for(int l=0; l<10; l++)
-									{
-										player_board[0][k][l] = temp_board[k*10+l];
-									}
-								}
-							}
-							else if(temp_buf == -2)
-							{
-								for(int k=0; k<18; k++)
-								{
-									for(int l=0; l<10; l++)
-									{
-										player_board[1][k][l] = temp_board[k*10+l];
-									}
-								}
-							}
-							else if(temp_buf == -3)
-							{
-								for(int k=0; k<18; k++)
-								{
-									for(int l=0; l<10; l++)
-									{
-										player_board[2][k][l] = temp_board[k*10+l];
-									}
-								}
-							}
-							else if(temp_buf == -4)
-							{
-								for(int k=0; k<18; k++)
-								{
-									for(int l=0; l<10; l++)
-									{
-										player_board[3][k][l] = temp_board[k*10+l];
-									}
-								}	
-							}
-							else if(temp_buf == -5)
-							{
-								for(int k=0; k<18; k++)
-								{
-									for(int l=0; l<10; l++)
-									{
-										player_board[4][k][l] = temp_board[k*10+l];
-									}
-								}
-							}
-						}
-						else
-						{
-							temp_board[j] = temp_buf;
-						}
-					}
-				}
-			}
-		
-			for(int i=0; i<5; i++)
-			{
-				for(int j=0; j<18; j++)
-				{
-					for(int k=0; k<10; k++)
-					{
-						if(player_board[i][j][k]==1)
-						{
-							player_board_int[i][j][k]=1;
-						}
-						else
-						{
-							player_board_int[i][j][k]=0;
-						}
-					}
-				}
-			}
-			for(int i=0; i<5; i++)
-			{
-				if(i==id)
-				{
-					continue;
-				}
-				else
-				{
-					array_tetris.get(i).setGrid(player_board_int[i]);;		
-				}
-				
-			}
-			
+					
 		}
     	
     }
@@ -684,6 +572,127 @@ public class GameRoom extends javax.swing.JFrame{
 					dout.writeByte(id);
 					System.out.println("id = "+id);
 					dout.flush();
+					array_tetris.add(0, tetris2);
+					array_tetris.add(1, tetris3);
+					array_tetris.add(2, tetris4);
+					array_tetris.add(3, tetris5);
+					
+					player_board = new byte[5][18][10];
+					int[][][] player_board_int = new int[5][18][10];
+					byte[] temp_board = new byte[200];
+					byte temp_buf = (byte)0;
+					for(int i=0; i<5; i++)
+					{
+						if(id == i)
+							continue;
+						else
+						{
+							for(int j=0; j<CreateRoom.BUF_SIZE; j++)
+							{
+								try {
+									temp_buf = din.readByte();
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								if(temp_buf <0)
+								{
+									if(temp_buf == -1)
+									{
+										for(int k=0; k<18; k++)
+										{
+											for(int l=0; l<10; l++)
+											{
+												player_board[0][k][l] = temp_board[k*10+l];
+											}
+										}
+										break;
+									}
+									else if(temp_buf == -2)
+									{
+										for(int k=0; k<18; k++)
+										{
+											for(int l=0; l<10; l++)
+											{
+												player_board[1][k][l] = temp_board[k*10+l];
+											}
+										}
+										break;
+									}
+									else if(temp_buf == -3)
+									{
+										for(int k=0; k<18; k++)
+										{
+											for(int l=0; l<10; l++)
+											{
+												player_board[2][k][l] = temp_board[k*10+l];
+											}
+										}
+										break;
+									}
+									else if(temp_buf == -4)
+									{
+										for(int k=0; k<18; k++)
+										{
+											for(int l=0; l<10; l++)
+											{
+												player_board[3][k][l] = temp_board[k*10+l];
+											}
+										}	
+										break;
+									}
+									else if(temp_buf == -5)
+									{
+										for(int k=0; k<18; k++)
+										{
+											for(int l=0; l<10; l++)
+											{
+												player_board[4][k][l] = temp_board[k*10+l];
+											}
+										}
+										break;
+									}
+								}
+								else
+								{
+									temp_board[j] = temp_buf;
+								}
+							}
+						}
+					}
+				
+					for(int i=0; i<5; i++)
+					{
+						for(int j=0; j<18; j++)
+						{
+							for(int k=0; k<10; k++)
+							{
+								if(player_board[i][j][k]==1)
+								{
+									player_board_int[i][j][k]=1;
+								}
+								else
+								{
+									player_board_int[i][j][k]=0;
+								}
+							}
+						}
+					}
+					for(int i=0; i<5; i++)
+					{
+						if(i==id)
+						{
+							continue;
+						}
+						else
+						{
+							array_tetris.get(i).setGrid(player_board_int[i]);;		
+						}
+						
+					}
+			
+					
+					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
