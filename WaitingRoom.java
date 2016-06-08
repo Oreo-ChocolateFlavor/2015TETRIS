@@ -234,6 +234,7 @@ public class WaitingRoom extends javax.swing.JFrame{
 
             //테이블에서 방정보 받아오기
             //키값 갖고오려면 아래 숫자 바꾸면 됨
+            final String now_max = (String) model.getValueAt(table.getSelectedRow(), 3);
             final String room_port = (String) model.getValueAt(table.getSelectedRow(), 2);
             final String room_name = (String) model.getValueAt(table.getSelectedRow(), 1);
             //임시
@@ -244,7 +245,8 @@ public class WaitingRoom extends javax.swing.JFrame{
             System.out.println("point8");
             tmpbuf = din.readByte();
             System.out.println("point9"+tmpbuf);
-            
+
+
             if(tmpbuf == CreateRoom.FULLL_ROOM_SIG)
             {
             	System.out.println("Full_Room_signal get");
@@ -261,6 +263,7 @@ public class WaitingRoom extends javax.swing.JFrame{
             	System.out.println("point11");
                 GameRoom gameRoom = new GameRoom(new_sock, join);
                 gameRoom.setRoomname(room_name);
+                gameRoom.setId(now_max.charAt(0));
                 //gameRoom.setVisible(true);
 
                 //쓰레드로 변경

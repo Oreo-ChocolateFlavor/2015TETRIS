@@ -37,7 +37,9 @@ public class GameRoom extends javax.swing.JFrame{
     DataInputStream din;
     DataOutputStream dout_listen;
     DataInputStream din_listen;
-    int id;
+
+    public int id;
+
     public GameRoom(Socket new_sock, boolean join) {
         //check join
         this.join = join;
@@ -414,8 +416,11 @@ public class GameRoom extends javax.swing.JFrame{
     public void setRoomname(String roomname) {
         this.roomname = roomname;
         this.setTitle(roomname);
-        }
-    
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
     
     private class RecvTimer extends TimerTask
     {
