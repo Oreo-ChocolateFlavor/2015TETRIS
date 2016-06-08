@@ -48,6 +48,7 @@ public class GameRoom extends javax.swing.JFrame{
         //new_sock, read, write
         this.new_sock = new_sock;
 
+        array_tetris = new ArrayList<Tetris_display>();
         try {
             pw = new PrintWriter(new OutputStreamWriter(new_sock.getOutputStream()));
             br = new BufferedReader(new InputStreamReader(new_sock.getInputStream()));
@@ -547,11 +548,11 @@ public class GameRoom extends javax.swing.JFrame{
             		 {
             			 if(temp_int_array[i][j]>=0)
             			 {
-            				 temp_array[i][j] = (byte)0;
+            				 temp_array[i][j] = (byte)1;
             			 }
             			 else
             			 {
-            				 temp_array[i][j] = (byte)1;
+            				 temp_array[i][j] = (byte)0;
             			 }
             		 }
             
@@ -599,23 +600,35 @@ public class GameRoom extends javax.swing.JFrame{
 								{
 									if(temp_buf == -1)
 									{
+										System.out.println("in the Boread Id : " + temp_buf);
+										
 										for(int k=0; k<18; k++)
 										{
 											for(int l=0; l<10; l++)
 											{
 												player_board[0][k][l] = temp_board[k*10+l];
+												System.out.print(player_board[0][k][l]+" ");
+												
 											}
+											System.out.println("");
 										}
+										
+										
+										
+										
 										break;
 									}
 									else if(temp_buf == -2)
 									{
+										System.out.println("in the Boread Id : " + temp_buf);
 										for(int k=0; k<18; k++)
 										{
 											for(int l=0; l<10; l++)
 											{
 												player_board[1][k][l] = temp_board[k*10+l];
+												System.out.print(player_board[1][k][l]+" ");
 											}
+											System.out.println("");
 										}
 										break;
 									}
@@ -673,11 +686,12 @@ public class GameRoom extends javax.swing.JFrame{
 								}
 								else
 								{
-									player_board_int[i][j][k]=0;
+									player_board_int[i][j][k]=-1;
 								}
 							}
 						}
 					}
+					int index=0;
 					for(int i=0; i<5; i++)
 					{
 						if(i==id)
@@ -686,7 +700,9 @@ public class GameRoom extends javax.swing.JFrame{
 						}
 						else
 						{
-							array_tetris.get(i).setGrid(player_board_int[i]);;		
+							array_tetris.get(index).init();
+							array_tetris.get(index).setGrid(player_board_int[i]);
+							index++;
 						}
 						
 					}
