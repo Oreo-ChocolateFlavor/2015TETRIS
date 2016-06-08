@@ -29,6 +29,10 @@ public class Tetris extends Applet {
     // STATIC MEMBERS
     //
 
+    public int[][] getgrid()
+    {
+    	return this.grid;
+    }
     private final static int INITIAL_DELAY = 1000;
     private final static byte ROWS = 18;
     private final static byte COLUMNS = 10;
@@ -119,7 +123,8 @@ public class Tetris extends Applet {
     // INSTANCE DATA
     //
 
-    private int grid[][] = new int[ROWS][COLUMNS];
+    public boolean game_flag =false;
+    public int grid[][] = new int[ROWS][COLUMNS];
     private int next_piece_grid[][] = new int[4][4];
     private int num_rows_deleted = 0;
     private GridCanvas game_grid = new GridCanvas(grid, true);
@@ -148,6 +153,7 @@ public class Tetris extends Applet {
         }
     }
 
+    
     private class TetrisPiece {
         private boolean squares[][];
         private int type;
@@ -451,7 +457,12 @@ public class Tetris extends Applet {
             gameOver();
     }
 
-    private void gameOver() {
+    public boolean get_gameflag()
+    {
+    	return this.game_flag;
+    }
+    public void gameOver() {
+    	this.game_flag = true;
         System.out.println("Game Over!");
         timer.setPaused(true);
         pause_resume_butt.setEnabled(false);

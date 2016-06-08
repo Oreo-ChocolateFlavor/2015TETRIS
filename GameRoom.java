@@ -3,6 +3,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
+import java.util.TimerTask;
 
 /**
  * Created by JaeSeung on 2016. 6. 3..
@@ -18,32 +19,36 @@ public class GameRoom extends javax.swing.JFrame{
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-
+    public Tetris tetris;
+    public Tetris_display tetris2;
+    public Tetris_display tetris3;
+    public Tetris_display tetris4;
+    public Tetris_display tetris5;
     //dummy
     private javax.swing.JButton jButton_exit;
     private javax.swing.JButton jButton_start;
 
     String roomname;
 
-    Socket sock;
+    Socket new_sock;
     PrintWriter pw;
     BufferedReader br;
     DataOutputStream dout;
     DataInputStream din;
     DataOutputStream dout_listen;
     DataInputStream din_listen;
-
-    public GameRoom(Socket sock, boolean join) {
+    int id;
+    public GameRoom(Socket new_sock, boolean join) {
         //check join
         this.join = join;
-        //sock, read, write
-        this.sock = sock;
+        //new_sock, read, write
+        this.new_sock = new_sock;
 
         try {
-            pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
-            br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-            dout = new DataOutputStream(sock.getOutputStream());
-            din = new DataInputStream(sock.getInputStream());
+            pw = new PrintWriter(new OutputStreamWriter(new_sock.getOutputStream()));
+            br = new BufferedReader(new InputStreamReader(new_sock.getInputStream()));
+            dout = new DataOutputStream(new_sock.getOutputStream());
+            din = new DataInputStream(new_sock.getInputStream());
             dout_listen = new DataOutputStream(Client.sock.getOutputStream());
             din_listen = new DataInputStream(Client.sock.getInputStream());
         } catch(IOException e) {
@@ -68,12 +73,20 @@ public class GameRoom extends javax.swing.JFrame{
         //join 값 줘서 변경해야함
         //시작은 방장만 할 수 있도록
 
-        Tetris tetris = new Tetris();
+        tetris = new Tetris();
         tetris.init();
         tetris.start();
 
-        Tetris_display tetris2 = new Tetris_display();
+        tetris2 = new Tetris_display();
         tetris2.init();
+        tetris3 = new Tetris_display();
+        tetris3.init();
+        tetris4 = new Tetris_display();
+        tetris4.init();
+        tetris5 = new Tetris_display();
+        tetris5.init();
+        
+        
         int array[][] = new int[18][10];
         for(int i=0; i<9; i++)
         {
@@ -90,7 +103,10 @@ public class GameRoom extends javax.swing.JFrame{
             }
         }
         tetris2.setGrid(array);
-
+       
+        
+        
+        
         jButton_exit = new javax.swing.JButton();
         jButton_exit.setText("Exit");
         jButton_exit
@@ -118,8 +134,8 @@ public class GameRoom extends javax.swing.JFrame{
 								dout.flush();
 
 								dout_listen.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
-								dout_listen.writeInt(sock.getPort());
-								System.out.println("client_port = "+sock.getPort());
+								dout_listen.writeInt(new_sock.getPort());
+								System.out.println("client_port = "+new_sock.getPort());
 								dout_listen.flush();
                         	} catch (IOException e) {
 								// TODO Auto-generated catch block
@@ -134,7 +150,7 @@ public class GameRoom extends javax.swing.JFrame{
 								dout.flush();
 
 								dout_listen.writeByte(CreateRoom.DESTORY_ROOM_SIG);
-								dout_listen.writeInt(sock.getPort());
+								dout_listen.writeInt(new_sock.getPort());
 								dout_listen.flush();
                         	} catch (IOException e) {
 								// TODO Auto-generated catch block
@@ -146,6 +162,12 @@ public class GameRoom extends javax.swing.JFrame{
                         {
                         	System.out.println("Exit room error");
                         }
+                        try {
+							new_sock.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
                         dispose();
                     }
                 });
@@ -159,8 +181,8 @@ public class GameRoom extends javax.swing.JFrame{
                         dout.flush();
 
                         dout_listen.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
-                        dout_listen.writeInt(sock.getPort());
-                        System.out.println("client_port = "+sock.getPort());
+                        dout_listen.writeInt(new_sock.getPort());
+                        System.out.println("client_port = "+new_sock.getPort());
                         dout_listen.flush();
                     } catch (IOException err) {
                         // TODO Auto-generated catch block
@@ -175,7 +197,7 @@ public class GameRoom extends javax.swing.JFrame{
                         dout.flush();
 
                         dout_listen.writeByte(CreateRoom.DESTORY_ROOM_SIG);
-                        dout_listen.writeInt(sock.getPort());
+                        dout_listen.writeInt(new_sock.getPort());
                         dout_listen.flush();
                     } catch (IOException err) {
                         // TODO Auto-generated catch block
@@ -198,32 +220,26 @@ public class GameRoom extends javax.swing.JFrame{
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
 
                         if(!join) {
+                            try {
+                            	dout.writeByte(CreateRoom.HOST_GAMESTART_SIG);
+                            	dout.flush();
+                            	dout_listen.writeByte(CreateRoom.HOST_GAMESTART_SIG);
+                            	dout_listen.writeInt(new_sock.getPort());
+                            	dout_listen.flush();
+                            	
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
                             tetris.newGame();
                             jButton_start.addKeyListener(tetris.getKey_listener());
 
-                            /*try {
-                                dout.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
-                                dout.flush();
-
-                                dout_listen.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
-                                dout_listen.writeByte(sock.getPort());
-                                System.out.println("client_port = "+sock.getPort());
-                                dout_listen.flush();
-                            } catch (IOException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }*/
                         }
 
                     }
                 });
 
-        Tetris_display tetris3 = new Tetris_display();
-        tetris3.init();
-        Tetris_display tetris4 = new Tetris_display();
-        tetris4.init();
-        Tetris_display tetris5 = new Tetris_display();
-        tetris5.init();
+        
 
 
         javax.swing.GroupLayout main_jPanelLayout = new javax.swing.GroupLayout(main_jPanel);
@@ -382,6 +398,10 @@ public class GameRoom extends javax.swing.JFrame{
         this.setTitle(roomname);
         this.add(main_jPanel);
         setResizable(false);// 창 크기 못바꾸게
+        
+        TimerTask mytask = new SendTimer();
+        java.util.Timer t = new java.util.Timer(true);
+        t.schedule(mytask, 1000);
 
     }
 
@@ -395,4 +415,76 @@ public class GameRoom extends javax.swing.JFrame{
         this.roomname = roomname;
         this.setTitle(roomname);
         }
+    
+    
+    private class RecvTimer extends TimerTask
+    {
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
+		}
+    	
+    }
+    private class SendTimer extends TimerTask
+    {
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			byte[][] temp_array = new byte[18][10];
+            int[][] temp_int_array = new int[18][10];
+            
+            while(true)
+            {
+            	if(tetris.game_flag == true)
+            	{
+            		break;
+            	}
+            	try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            	 temp_int_array = tetris.getgrid();
+            	 for(int i=0; i<18; i++)
+            	 {
+            		 for(int j=0; j<10; j++)
+            		 {
+            			 if(temp_int_array[i][j]>=0)
+            			 {
+            				 temp_array[i][j] = (byte)0;
+            			 }
+            			 else
+            			 {
+            				 temp_array[i][j] = (byte)1;
+            			 }
+            		 }
+            
+            	 }
+            	 //System.out.println("copy success! 0 0 :"+temp_array[0][0]);
+            	 for(int i=0; i<18; i++)
+            	 {
+            		 try {
+						dout.write(temp_array[i]);
+						dout.flush();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	 
+            	 }
+            	 try {
+					dout.writeByte(CreateRoom.GAMEBOARD_UPDATE_SIG);
+					dout.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }	
+		}
+    	
+    }
+
 }

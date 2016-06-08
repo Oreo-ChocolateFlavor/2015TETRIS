@@ -270,6 +270,10 @@ public class WaitingRoom extends javax.swing.JFrame{
                     }
                 });
             }
+            else if(tmpbuf == CreateRoom.IS_NOW_PLAYING_SIG)
+            {
+            	System.out.println("IS now playing!");
+            }
                     } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.getMessage());

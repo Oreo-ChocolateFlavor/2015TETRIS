@@ -20,6 +20,11 @@ public class CreateRoom extends javax.swing.JFrame{
     public static final byte NO_EXIST_ROOM = -109;
     public static final byte AVAIL_ROOM_SIG = -110;
     public static final byte LEAVE_GAMEROOM_SIG = -111;
+    public static final byte HOST_GAMESTART_SIG = -112;
+    public static final byte GAMEBOARD_UPDATE_SIG = -113;
+    public static final byte IS_NOW_PLAYING_SIG = -114;
+    
+    //public static final byte 
     public static final int BUF_SIZE = 1024;
     
     private javax.swing.JPanel main_jPanel;
