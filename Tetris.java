@@ -21,7 +21,11 @@ import java.net.MalformedURLException;
 
 public class Tetris extends Applet {
 
-    //
+    KeyListener key_listener;
+    public KeyListener getKey_listener() {
+        return key_listener;
+    }
+        //
     // STATIC MEMBERS
     //
 
@@ -596,7 +600,7 @@ public class Tetris extends Applet {
         });
 
         //create key listener for rotating, moving left, moving right
-        KeyListener key_listener = new KeyAdapter() {
+        key_listener = new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if(timer.isPaused()) //don't do anything if game is paused
                     return;

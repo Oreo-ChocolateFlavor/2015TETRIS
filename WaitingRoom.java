@@ -1,5 +1,7 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -182,6 +184,21 @@ public class WaitingRoom extends javax.swing.JFrame{
         this.add(main_jPanel);
         setResizable(false);// 창 크기 못바꾸게
 
+        this.addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e) {
+                try {
+                    dout.writeByte(CLOSE_MAINROOM_SIGNAL);
+                    dout.flush();
+
+                    isrunning = false;
+
+                } catch (Exception err) {
+                    // TODO Auto-generated catch block
+                    JOptionPane.showMessageDialog(null, err.getMessage());
+
+                }
+            }
+        });
     }
 
     private void jButton_create_roomActionPerformed(
@@ -309,6 +326,7 @@ public class WaitingRoom extends javax.swing.JFrame{
             model.addRow(tmplist.get(i));
         }
     }
+
 
 /*
 

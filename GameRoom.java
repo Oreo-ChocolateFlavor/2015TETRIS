@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
 
@@ -148,15 +150,56 @@ public class GameRoom extends javax.swing.JFrame{
                     }
                 });
 
-        jButton_start = new javax.swing.JButton();
+        this.addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e) {
+                if(join == true)
+                {
+                    try {
+                        dout.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
+                        dout.flush();
+
+                        dout_listen.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
+                        dout_listen.writeInt(sock.getPort());
+                        System.out.println("client_port = "+sock.getPort());
+                        dout_listen.flush();
+                    } catch (IOException err) {
+                        // TODO Auto-generated catch block
+                        err.printStackTrace();
+                    }
+
+                }
+                else if(join == false)
+                {
+                    try {
+                        dout.writeByte(CreateRoom.DESTORY_ROOM_SIG);
+                        dout.flush();
+
+                        dout_listen.writeByte(CreateRoom.DESTORY_ROOM_SIG);
+                        dout_listen.writeInt(sock.getPort());
+                        dout_listen.flush();
+                    } catch (IOException err) {
+                        // TODO Auto-generated catch block
+                        err.printStackTrace();
+                    }
+
+                }
+                else
+                {
+                    System.out.println("Exit room error");
+                }
+                dispose();
+            }
+        });
+
+                jButton_start = new javax.swing.JButton();
         jButton_start.setText("Start");
         jButton_start
                 .addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
 
                         if(!join) {
-                            //tetris.newGame();
-                            //tetris.start();
+                            tetris.newGame();
+                            jButton_start.addKeyListener(tetris.getKey_listener());
 
                             /*try {
                                 dout.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
