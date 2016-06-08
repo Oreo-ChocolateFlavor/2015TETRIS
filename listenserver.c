@@ -214,6 +214,7 @@ int main(int argc,char* argv[])
                 else{
                   printf("이럇샤이마세!\n");
                   sendsignal = AVAIL_ROOM_SIG;
+                  room[rc].nowperson++;
                   write(p[i].child[1],&sendsignal,1);
                 }
 
@@ -248,11 +249,36 @@ int main(int argc,char* argv[])
           }
           else if(SIG == LEAVE_GAMEROOM_SIG)
           {
-            printf("Mainserver: LEAVE_GAMEROOM_SIG recv\n");
+            int recvport;
+            read(p[i].parent[0],&recvport,sizeof(int));
+            printf("Mainserver: LEAVE_GAMEROOM_SIG recv %d\n",recvport);
+
+            for(int rc=0; rc <= room_count; rc++)
+            {
+              if(room[rc].port == recvport)
+              {
+                room[rc].nowperson--;
+                break;
+              }
+            }
           }
           else if(SIG == DESTROY_ROOM_SIG)
           {
-            printf("Mainserver: DESTROY_ROOM_SIG recv\n");
+            int recvport;
+            read(p[i].parent[0],&recvport,sizeof(int));
+            printf("Mainserver: DESTROY_ROOM_SIG recv %d\n",recvport);
+
+            for(int rc=0; rc <= room_count; rc++)
+            {
+              if(room[rc].port == recvport)
+              {
+
+                room[rc] = room[room_count -1];
+                strcpy(room[room_count-1].name,"");
+                room_count--;
+                break;
+              }
+            }
           }
           else{
             printf("Nah... error\n");
@@ -415,6 +441,7 @@ void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실�
       int recvport = ByteToInt(buf);
 
       write(pip.parent[1],&endsignal,1);
+      write(pip.parent[1],&recvport,sizeof(int));
 
       printf("%c[1;35m",27);
       printf("방떠남 get PORT: %d\n",recvport);
@@ -437,7 +464,7 @@ void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실�
       fflush(stdout);
 
       write(pip.parent[1],&endsignal,1);
-
+      write(pip.parent[1],&recvport,sizeof(int));
     }
     else if(SIG == 0)
     {

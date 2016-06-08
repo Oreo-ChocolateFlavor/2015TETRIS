@@ -12,6 +12,7 @@
 #define LEAVE_GAMEROOM_SIG  -111 // 게임룸에서 사용자가 나갈때
 #define HOST_GAMESTART_SIG -112 // 게임룸에서 호스트가 스타트 버튼을 누를때
 
+
 struct PIPE
 {
   int child[2];
