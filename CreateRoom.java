@@ -23,6 +23,7 @@ public class CreateRoom extends javax.swing.JFrame{
     public static final byte HOST_GAMESTART_SIG = -112;
     public static final byte GAMEBOARD_UPDATE_SIG = -113;
     public static final byte IS_NOW_PLAYING_SIG = -114;
+    public static final byte GAME_OVER_SIG = -115;
     
     //public static final byte 
     public static final int BUF_SIZE = 1024;
@@ -112,6 +113,7 @@ public class CreateRoom extends javax.swing.JFrame{
                             	System.out.println("new_sock is null");
                             GameRoom gameRoom = new GameRoom(new_sock, join);
                             gameRoom.setRoomname(room_name);
+                            gameRoom.setId((byte)0);
                             System.out.println("Point4");
                             //gameRoom.setVisible(true);
 

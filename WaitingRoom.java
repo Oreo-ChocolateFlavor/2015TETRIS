@@ -263,7 +263,9 @@ public class WaitingRoom extends javax.swing.JFrame{
             	System.out.println("point11");
                 GameRoom gameRoom = new GameRoom(new_sock, join);
                 gameRoom.setRoomname(room_name);
-                gameRoom.setId(now_max.charAt(0));
+                byte temp;
+                temp = (byte)(now_max.charAt(0));
+                gameRoom.setId(temp);
                 //gameRoom.setVisible(true);
 
                 //쓰레드로 변경

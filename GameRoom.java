@@ -3,6 +3,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.TimerTask;
 
 /**
@@ -12,7 +13,7 @@ public class GameRoom extends javax.swing.JFrame{
 
     //join
     boolean join;
-
+    public static boolean start_game =false;
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -24,6 +25,7 @@ public class GameRoom extends javax.swing.JFrame{
     public Tetris_display tetris3;
     public Tetris_display tetris4;
     public Tetris_display tetris5;
+    public ArrayList<Tetris_display> array_tetris;
     //dummy
     private javax.swing.JButton jButton_exit;
     private javax.swing.JButton jButton_start;
@@ -38,8 +40,8 @@ public class GameRoom extends javax.swing.JFrame{
     DataOutputStream dout_listen;
     DataInputStream din_listen;
 
-    public int id;
-
+    public byte id;
+    public byte[][][] player_board;
     public GameRoom(Socket new_sock, boolean join) {
         //check join
         this.join = join;
@@ -217,11 +219,19 @@ public class GameRoom extends javax.swing.JFrame{
 
                 jButton_start = new javax.swing.JButton();
         jButton_start.setText("Start");
+        if(join==true)
+        {
+        	jButton_start.setEnabled(false);
+        }
         jButton_start
                 .addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-
-                        if(!join) {
+                    	byte start_tmp = 0;
+                    	start_game = true;
+                    	
+                    	if(!join) {
+                        	
+                        	System.out.println("point in not join");
                             try {
                             	dout.writeByte(CreateRoom.HOST_GAMESTART_SIG);
                             	dout.flush();
@@ -233,10 +243,45 @@ public class GameRoom extends javax.swing.JFrame{
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-                            tetris.newGame();
+                            
+                            try {
+								start_tmp = din.readByte();
+								if(start_tmp == CreateRoom.HOST_GAMESTART_SIG)
+								{
+									TimerTask mytask = new SendTimer();
+							        java.util.Timer t = new java.util.Timer(true);
+							        t.schedule(mytask, 1000);
+									tetris.newGame();
+								}
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+                            
                             jButton_start.addKeyListener(tetris.getKey_listener());
 
                         }
+                        else
+                        {
+                        	System.out.println("point in join");
+                        	try {
+								start_tmp = din.readByte();
+								
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							if(start_tmp == CreateRoom.HOST_GAMESTART_SIG)
+							{
+								TimerTask mytask = new SendTimer();
+						        java.util.Timer t = new java.util.Timer(true);
+						        t.schedule(mytask, 1000);
+								tetris.newGame();
+								jButton_start.addKeyListener(tetris.getKey_listener());
+							}
+							
+                        }
+                        
 
                     }
                 });
@@ -401,12 +446,44 @@ public class GameRoom extends javax.swing.JFrame{
         this.add(main_jPanel);
         setResizable(false);// 창 크기 못바꾸게
         
-        TimerTask mytask = new SendTimer();
-        java.util.Timer t = new java.util.Timer(true);
-        t.schedule(mytask, 1000);
-
+        
+        boolean test = GameRoom.start_game;
+        
+//        TimerTask mytask = new SendTimer();
+//        java.util.Timer t = new java.util.Timer(true);
+//        t.schedule(mytask, 1000);
+        if(join)
+        {
+        	guest_gamestart g_game = new guest_gamestart();
+            g_game.start();	
+        }
+        
     }
 
+    public class guest_gamestart extends Thread
+    {
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			super.run();
+			byte temp = 0;
+        	try {
+        			temp = din.readByte();		
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	if(temp == CreateRoom.HOST_GAMESTART_SIG&& join)
+        	{
+        		TimerTask mytask = new SendTimer();
+		        java.util.Timer t = new java.util.Timer(true);
+		        t.schedule(mytask, 1000);
+				tetris.newGame();
+        	}
+		}
+    	
+    }
 
     public void update_table(Tetris_display tetris, int[][] array) {
         tetris.init();
@@ -418,7 +495,7 @@ public class GameRoom extends javax.swing.JFrame{
         this.setTitle(roomname);
     }
 
-    public void setId(int id) {
+    public void setId(byte id) {
         this.id = id;
     }
     
@@ -428,6 +505,119 @@ public class GameRoom extends javax.swing.JFrame{
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
+			array_tetris.add(0, tetris2);
+			array_tetris.add(1, tetris3);
+			array_tetris.add(2, tetris4);
+			array_tetris.add(3, tetris5);
+			
+			player_board = new byte[5][18][10];
+			int[][][] player_board_int = new int[5][18][10];
+			byte[] temp_board = new byte[200];
+			byte temp_buf = (byte)0;
+			for(int i=0; i<5; i++)
+			{
+				if(id == i)
+					continue;
+				else
+				{
+					for(int j=0; j<CreateRoom.BUF_SIZE; j++)
+					{
+						try {
+							temp_buf = din.readByte();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						if(temp_buf <0)
+						{
+							if(temp_buf == -1)
+							{
+								for(int k=0; k<18; k++)
+								{
+									for(int l=0; l<10; l++)
+									{
+										player_board[0][k][l] = temp_board[k*10+l];
+									}
+								}
+							}
+							else if(temp_buf == -2)
+							{
+								for(int k=0; k<18; k++)
+								{
+									for(int l=0; l<10; l++)
+									{
+										player_board[1][k][l] = temp_board[k*10+l];
+									}
+								}
+							}
+							else if(temp_buf == -3)
+							{
+								for(int k=0; k<18; k++)
+								{
+									for(int l=0; l<10; l++)
+									{
+										player_board[2][k][l] = temp_board[k*10+l];
+									}
+								}
+							}
+							else if(temp_buf == -4)
+							{
+								for(int k=0; k<18; k++)
+								{
+									for(int l=0; l<10; l++)
+									{
+										player_board[3][k][l] = temp_board[k*10+l];
+									}
+								}	
+							}
+							else if(temp_buf == -5)
+							{
+								for(int k=0; k<18; k++)
+								{
+									for(int l=0; l<10; l++)
+									{
+										player_board[4][k][l] = temp_board[k*10+l];
+									}
+								}
+							}
+						}
+						else
+						{
+							temp_board[j] = temp_buf;
+						}
+					}
+				}
+			}
+		
+			for(int i=0; i<5; i++)
+			{
+				for(int j=0; j<18; j++)
+				{
+					for(int k=0; k<10; k++)
+					{
+						if(player_board[i][j][k]==1)
+						{
+							player_board_int[i][j][k]=1;
+						}
+						else
+						{
+							player_board_int[i][j][k]=0;
+						}
+					}
+				}
+			}
+			for(int i=0; i<5; i++)
+			{
+				if(i==id)
+				{
+					continue;
+				}
+				else
+				{
+					array_tetris.get(i).setGrid(player_board_int[i]);;		
+				}
+				
+			}
 			
 		}
     	
@@ -441,10 +631,19 @@ public class GameRoom extends javax.swing.JFrame{
 			byte[][] temp_array = new byte[18][10];
             int[][] temp_int_array = new int[18][10];
             
+            System.out.println("point101");
             while(true)
             {
             	if(tetris.game_flag == true)
             	{
+            		try {
+            			dout.writeByte(CreateRoom.GAME_OVER_SIG);
+            			dout.write(id);
+            			dout.flush();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
             		break;
             	}
             	try {
@@ -482,6 +681,8 @@ public class GameRoom extends javax.swing.JFrame{
             	 }
             	 try {
 					dout.writeByte(CreateRoom.GAMEBOARD_UPDATE_SIG);
+					dout.writeByte(id);
+					System.out.println("id = "+id);
 					dout.flush();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

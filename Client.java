@@ -138,7 +138,10 @@ public class Client {
 					{
 						
 					}
-					
+					else if((int)tmpbuf == CreateRoom.HOST_GAMESTART_SIG)
+					{
+						
+					}
 					index = i;
 					break;
 				}
