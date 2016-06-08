@@ -113,9 +113,14 @@ void Gameserver(struct PIPE pip,int serverport)
 
           if(recvgamesig == (char)LEAVE_GAMEROOM_SIG)
           {
+
+            FD_CLR(per[i].client_sock,&oldset);
+            per[i] = per[persontop -1];
+            persontop--;
+
             printf("%c[1;33m\n",27);
             printf("IN THE GAMEROOM\n");
-            printf("야! 방떠나장!!\n");
+            printf("GUEST is LEAVE THE ROOM!\n");
             printf("%c[0m\n",27);
             fflush(stdout);
           }
@@ -123,9 +128,10 @@ void Gameserver(struct PIPE pip,int serverport)
           {
             printf("%c[1;33m\n",27);
             printf("IN THE GAMEROOM\n");
-            printf("방파괴하자!\n");
+            printf("HOST IS DESTROY THE GAMEROOM!!\n");
             printf("%c[0m\n",27);
             fflush(stdout);
+            exit(1);
           }
         }
       }
@@ -135,17 +141,13 @@ void Gameserver(struct PIPE pip,int serverport)
 
   }
 
-
-
-
   return;
 }
 
 
 void ReadGameserver(int sock,char* buf) // 버그의 소지가 있음.. 고치는 것은 생각을좀 해보자.
 {
-  memset(buf,0,1024);
-  int len=sizeof(buf);
+  int len=1024;
   int recvlen=0;
   char *t = buf;
 

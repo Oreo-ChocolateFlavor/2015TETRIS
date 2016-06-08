@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "datastruct.h"
+#include <errno.h>
 
 int portnumber = 7000;
 int inputsignal;
@@ -39,6 +40,16 @@ void ReadMessage(int sock,char* buf);
 void ConnectedServer(int connectedsock,struct PIPE pip);
 void CreateRoom(struct PIPE pip,int connectedsock,int* childport);
 void JoinRoom(struct PIPE pip,int connectedsock);
+
+int ByteToInt(const char* byte)
+{
+  int s1 = byte[0] & 0xFF;
+  int s2 = byte[1] & 0xFF;
+  int s3 = byte[2] & 0xFF;
+  int s4 = byte[3] & 0xFF;
+
+  return ((s1 << 24) + (s2 << 16) + (s3 << 8) + (s4 << 0));
+}
 
 int main(int argc,char* argv[])
 {
@@ -230,12 +241,18 @@ int main(int argc,char* argv[])
             read(p[i].parent[0],&room[room_count],sizeof(struct room_info));
             printf("ADDROOM_SIGNAL name: %s port: %d\n",room[room_count].name,room[room_count].port);
             room_count++;
-
-
           }
           else if(SIG == ROOMINFOSEND_SIGNAL){
             printf("Mainserver: ROOMINFOSEND_SIGNAL recv\n");
             write(p[i].child[1],&room,sizeof(room));
+          }
+          else if(SIG == LEAVE_GAMEROOM_SIG)
+          {
+            printf("Mainserver: LEAVE_GAMEROOM_SIG recv\n");
+          }
+          else if(SIG == DESTROY_ROOM_SIG)
+          {
+            printf("Mainserver: DESTROY_ROOM_SIG recv\n");
           }
           else{
             printf("Nah... error\n");
@@ -282,13 +299,13 @@ void AddRoomList(struct PIPE pip,char* buf,int childport)
 
   write(pip.parent[1],&sig,1);
 
-  memcpy(temproom.name,buf,sizeof(temproom.name));
+  strncpy(temproom.name,buf,sizeof(temproom.name));
   temproom.port = childport;
   temproom.maxperson = 5;
   temproom.nowperson = 1;
 
-  printf("%c[1;31m",27);
-  printf("%d in the AddRoomList() ROOMNAME is \"%s\"\n",getpid(),buf);
+  printf("%c[1;35m",27);
+  printf("%d in the AddRoomList() ROOMNAME is \"%s\" \"%s\"\n",getpid(),buf,temproom.name);
   printf("%c[0m\n",27);
   write(pip.parent[1],(char*)&temproom,sizeof(temproom));
 
@@ -297,11 +314,11 @@ void AddRoomList(struct PIPE pip,char* buf,int childport)
 
 void ReadMessage(int sock,char* buf) // 버그의 소지가 있음.. 고치는 것은 생각을좀 해보자.
 {
-  int len=sizeof(buf);
+  int len= 1024;
   int recvlen=0;
   char *t = buf;
 
-  while(len!=0  && (recvlen = read(sock,t,1)))
+  while(len > 0 && (recvlen = read(sock,t,1)))
   {
     len -= recvlen;
     t += recvlen;
@@ -368,11 +385,7 @@ void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실�
       char joinsignal = JOINROOM_SIGNAL;
       read(connectedsock,buf,sizeof(int));
 
-      int recvport = 0;
-      *((char*)&recvport + 0) = buf[3];
-      *((char*)&recvport + 1) = buf[2];
-      *((char*)&recvport + 2) = buf[1];
-      *((char*)&recvport + 3) = buf[0];
+      int recvport = ByteToInt(buf);
 
       write(pip.parent[1],&joinsignal,1);
       write(pip.parent[1],&recvport,sizeof(int));
@@ -380,41 +393,51 @@ void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실�
     }
     else if(SIG == CLOSE_MAINROOM_SIGNAL)
     {
-      printf("%c[1;33m",27);
+      printf("%c[1;35m",27);
       printf("<PID: %d>READ END SIGNAL %d\n",getpid(),pip.parent[1]);
-      printf("%c[1;33m",27);
+      printf("%c[1;0m",27);
       char endsignal = CLOSE_MAINROOM_SIGNAL;
       write(pip.parent[1],&endsignal,1);
       close(connectedsock);
       exit(1);
     }
-    else if(SIG == ADDROOM_SIGNAL) AddRoomList(pip,buf,nowport);
-    else if(SIG == LEAVE_GAMEROOM_SIG)
+    else if(SIG == ADDROOM_SIGNAL)
     {
-      read(connectedsock,buf,sizeof(int));
-      int recvport = 0;
-      *((char*)&recvport + 0) = buf[3];
-      *((char*)&recvport + 1) = buf[2];
-      *((char*)&recvport + 2) = buf[1];
-      *((char*)&recvport + 3) = buf[0];
+       printf("ADDROOM_SIGNAL : %s\n",buf);
+       AddRoomList(pip,buf,nowport);
 
-      printf("%c[1;33m",27);
+    }else if(SIG == LEAVE_GAMEROOM_SIG)  //  게스트가 방을 떠났을떄 해야할 동작 -> 부모 서버에 사람이 줄었다고 통보.
+    {
+      char endsignal = LEAVE_GAMEROOM_SIG;
+
+      memset(buf,0,sizeof(int) * 4);
+      read(connectedsock,buf,sizeof(int));
+      int recvport = ByteToInt(buf);
+
+      write(pip.parent[1],&endsignal,1);
+
+      printf("%c[1;35m",27);
       printf("방떠남 get PORT: %d\n",recvport);
-      printf("%c[1;33m",27);
+      printf("%c[1;0m",27);
       fflush(stdout);
     }
-    else if(SIG == DESTROY_ROOM_SIG)
+    else if(SIG == DESTROY_ROOM_SIG) // 호스트가 방을 파괴해야할때 해야 할 동작  -> 부모 서버에 방을 없애주는 동작을 해야함.
     {
-      read(connectedsock,buf,sizeof(int));
+      char endsignal = DESTROY_ROOM_SIG;
+
+      memset(buf,0,sizeof(int) * 4);
+      read(connectedsock,buf,4);
       int recvport = 0;
-      *((char*)&recvport + 0) = buf[3];
-      *((char*)&recvport + 1) = buf[2];
-      *((char*)&recvport + 2) = buf[1];
-      *((char*)&recvport + 3) = buf[0];
-      printf("%c[1;33m",27);
+
+      recvport = ByteToInt(buf);
+
+      printf("%c[1;35m",27);
       printf("호스트가 방파괴! port: %d",recvport);
       printf("%c[0m\n",27);
       fflush(stdout);
+
+      write(pip.parent[1],&endsignal,1);
+
     }
     else if(SIG == 0)
     {
