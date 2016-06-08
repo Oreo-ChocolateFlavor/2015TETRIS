@@ -217,11 +217,11 @@ public class WaitingRoom extends javax.swing.JFrame{
 
             //테이블에서 방정보 받아오기
             //키값 갖고오려면 아래 숫자 바꾸면 됨
-            final String room_name = (String) model.getValueAt(table.getSelectedRow(), 2);
-            //final String room_name = (String) model.getValueAt(table.getSelectedRow(), 1);
+            final String room_port = (String) model.getValueAt(table.getSelectedRow(), 2);
+            final String room_name = (String) model.getValueAt(table.getSelectedRow(), 1);
             //임시
             dout.writeByte(JOINROOM_SIGNAL);
-            dout.writeInt(Integer.parseInt(room_name));
+            dout.writeInt(Integer.parseInt(room_port));
             dout.flush();
             byte tmpbuf;
             System.out.println("point8");
@@ -239,7 +239,7 @@ public class WaitingRoom extends javax.swing.JFrame{
             else if(tmpbuf == CreateRoom.AVAIL_ROOM_SIG)
             {
             	System.out.println("point10");
-            	new_sock = Client.connect_gameserver(new_sock, Integer.parseInt(room_name), Client.getip());
+            	new_sock = Client.connect_gameserver(new_sock, Integer.parseInt(room_port), Client.getip());
             	boolean join = true;
             	System.out.println("point11");
                 GameRoom gameRoom = new GameRoom(new_sock, join);

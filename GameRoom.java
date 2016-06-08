@@ -116,7 +116,7 @@ public class GameRoom extends javax.swing.JFrame{
 								dout.flush();
 
 								dout_listen.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
-								dout_listen.writeByte(sock.getPort());
+								dout_listen.writeInt(sock.getPort());
 								System.out.println("client_port = "+sock.getPort());
 								dout_listen.flush();
                         	} catch (IOException e) {
@@ -132,7 +132,7 @@ public class GameRoom extends javax.swing.JFrame{
 								dout.flush();
 
 								dout_listen.writeByte(CreateRoom.DESTORY_ROOM_SIG);
-								dout_listen.writeByte(sock.getPort());
+								dout_listen.writeInt(sock.getPort());
 								dout_listen.flush();
                         	} catch (IOException e) {
 								// TODO Auto-generated catch block
