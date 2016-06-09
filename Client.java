@@ -89,14 +89,14 @@ public class Client {
 									tmp_name ="";
 									for(int l=0; l<52; l++)
 									{
-										tmp_name = tmp_name + Character.toString((char)buf[l+k*64]); 
+										tmp_name = tmp_name + Character.toString((char)buf[l+k*68]); 
 									}
 									
 									System.out.println("JAVA " + tmp_name);
 									
 									for(int l=0; l<4; l++)
 									{
-										tmp_byte[l] = buf[l+52+k*64];
+										tmp_byte[l] = buf[l+52+k*68];
 										System.out.println("l="+l);
 									}
 									
@@ -107,18 +107,21 @@ public class Client {
 									
 									for(int l=0; l<4; l++)
 									{
-										tmp_byte[l] = buf[l+56+k*64];
+										tmp_byte[l] = buf[l+56+k*68];
 									}
 									tmp_maxperson = byteToint(tmp_byte);
 									System.out.println("FUCK");
 									
 									for(int l=0; l<4; l++)
 									{
-										tmp_byte[l] = buf[l+60+k*64];
+										tmp_byte[l] = buf[l+60+k*68];
 									}
 									tmp_nowperson = byteToint(tmp_byte);
 									System.out.println("HEEDONG");
-									
+									for(int l=0; l<4; l++)
+									{
+										tmp_byte[l] = buf[l+64+k*68];
+									}
 									getData()[k] = new room_info(tmp_name, tmp_port, tmp_maxperson, tmp_nowperson);
 									System.out.println(k+"th name:"+tmp_name+"port"+tmp_port+"max"+tmp_maxperson+"now"+tmp_nowperson);
 								}	

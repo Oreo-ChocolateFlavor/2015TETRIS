@@ -142,6 +142,7 @@ public class GameRoom extends javax.swing.JFrame{
 								dout_listen.writeInt(new_sock.getPort());
 								System.out.println("client_port = "+new_sock.getPort());
 								dout_listen.flush();
+								new_sock.close();
                         	} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -157,6 +158,7 @@ public class GameRoom extends javax.swing.JFrame{
 								dout_listen.writeByte(CreateRoom.DESTORY_ROOM_SIG);
 								dout_listen.writeInt(new_sock.getPort());
 								dout_listen.flush();
+								new_sock.close();
                         	} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -479,7 +481,7 @@ public class GameRoom extends javax.swing.JFrame{
         	{
         		TimerTask mytask = new SendTimer();
 		        java.util.Timer t = new java.util.Timer(true);
-		        t.schedule(mytask, 1000);
+		        t.schedule(mytask, 500);
 				tetris.newGame();
         	}
 		}
@@ -536,7 +538,7 @@ public class GameRoom extends javax.swing.JFrame{
             		break;
             	}
             	try {
-					Thread.sleep(1000);
+					Thread.sleep(500);
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
