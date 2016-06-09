@@ -279,10 +279,12 @@ public class WaitingRoom extends javax.swing.JFrame{
             else if(tmpbuf == CreateRoom.IS_NOW_PLAYING_SIG)
             {
             	System.out.println("IS now playing!");
+                JOptionPane.showMessageDialog(null, room_name + "is now playing!",
+                        "참가 불가",JOptionPane.PLAIN_MESSAGE);
             }
                     } catch (Exception err) {
             // TODO Auto-generated catch block
-            JOptionPane.showMessageDialog(null, err.getMessage());
+            JOptionPane.showMessageDialog(null, err.toString());
         }
 
     }// GEN-LAST:jButton_join_roomActionPerformed
@@ -323,6 +325,7 @@ public class WaitingRoom extends javax.swing.JFrame{
 
     public void setRoom_info(room_info[] data) {
         this.data = data;
+        //System.out.println(data.toString());
         model.setRowCount(0);
         //TABLE initiate
         ArrayList<String[]> tmplist = new ArrayList<String[]>();
