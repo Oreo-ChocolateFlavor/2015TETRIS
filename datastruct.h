@@ -11,7 +11,10 @@
 #define AVAIL_ROOM_SIG -110 // 방이 이용가능 할떄
 #define LEAVE_GAMEROOM_SIG  -111 // 게임룸에서 사용자가 나갈때
 #define HOST_GAMESTART_SIG -112 // 게임룸에서 호스트가 스타트 버튼을 누를때
-
+#define GAMEBOARD_UPDATE_SIG -113 // 게임보드를 업데이트 해줄떄.
+#define IS_NOW_PLAYING -114
+#define GAME_OVER_SIG -115
+#define GMAE_END_SIG -116
 
 struct PIPE
 {
@@ -25,6 +28,7 @@ struct room_info
   int port;
   int maxperson;
   int nowperson;
+  bool isplay;
 };
 
 struct person

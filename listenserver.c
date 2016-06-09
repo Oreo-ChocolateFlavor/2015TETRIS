@@ -204,7 +204,14 @@ int main(int argc,char* argv[])
               {
                 printf("FIND ROOM\n");
                 find_flag = true;
-                if(room[rc].nowperson + 1 > room[rc].maxperson)
+
+                if(room[rc].isplay)
+                {
+                  printf("게임중이야 임마\n");
+                  sendsignal = IS_NOW_PLAYING;
+                  write(p[i].child[1],&sendsignal,1);
+
+                }else if(room[rc].nowperson + 1 > room[rc].maxperson)
                 {
                   printf("방꽉찼어 임마\n");
                   sendsignal = FULL_ROOM_SIG;
@@ -280,7 +287,23 @@ int main(int argc,char* argv[])
               }
             }
           }
-          else{
+          else if(SIG == HOST_GAMESTART_SIG)
+          {
+            int recvport;
+
+            read(p[i].parent[0],&recvport,sizeof(int));
+            printf("Mainserver: HOST_GAMESTART_SIG recv %d\n",recvport);
+
+            for(int rc=0; rc <= room_count; rc++)
+            {
+              if(room[rc].port == recvport)
+              {
+                room[rc].isplay = true;
+                break;
+              }
+            }
+
+          }else{
             printf("Nah... error\n");
           }
         }
@@ -465,6 +488,27 @@ void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실�
 
       write(pip.parent[1],&endsignal,1);
       write(pip.parent[1],&recvport,sizeof(int));
+
+      int status;
+      waitpid(-1,&status,WNOHANG);
+      printf("%c[1;35m",27);
+      printf("방파괴후 Wait() 완료\n");
+      printf("%c[0m\n",27);
+    }
+    else if(SIG == HOST_GAMESTART_SIG)
+    {
+      char endsignal = HOST_GAMESTART_SIG;
+      memset(buf,0,sizeof(int) * 4);
+
+      read(connectedsock,buf,4);
+      int recvport = ByteToInt(buf);
+
+      write(pip.parent[1],&endsignal,1);
+      write(pip.parent[1],&recvport,sizeof(int));
+      printf("%c[1;35m",27);
+      printf("게임스타트 시그널! port: %d",recvport);
+      printf("%c[0m\n",27);
+      fflush(stdout);
     }
     else if(SIG == 0)
     {
