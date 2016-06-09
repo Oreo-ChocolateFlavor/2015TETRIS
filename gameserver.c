@@ -83,10 +83,7 @@ void Gameserver(struct PIPE pip,int serverport)
       perror("gameserver select()");
       continue;
     }
-    else
-    {
-      printf("멀티플렉싱 진행중\n");
-    }
+
 
     if(FD_ISSET(gameserver_sock,&newset)) // join 요청이 들어올때
     {
@@ -155,19 +152,10 @@ void Gameserver(struct PIPE pip,int serverport)
 
               printf("GAMESTART!\n");
           }
-          else if(-5 <= recvgamesig && recvgamesig <= -1)
-          {
-            printf("%d 의 플레이어 보드\n",-recvgamesig);
-          }
           else if(recvgamesig == GAMEBOARD_UPDATE_SIG)
           {
-
-            printf("게임보드 업데이트 시그널이 들어옴 읽기전\n");
             char id;
             read(per[i].client_sock,&id,1);
-
-            printf("%d 게임보드 업데이트 시그널이 들어옴\n",id);
-
 
             for(int j=0; j<18; j++)
             {
@@ -184,8 +172,6 @@ void Gameserver(struct PIPE pip,int serverport)
               write(per[i].client_sock,&sendid,1);
 
             }
-
-            printf("%d 게임보드 업데이트 시그널이 끝남\n",id);
           }
           else if(recvgamesig == GAME_OVER_SIG)
           {
@@ -194,29 +180,24 @@ void Gameserver(struct PIPE pip,int serverport)
             score[nowstack] = id;
             nowstack++;
 
-            for(int j=0; j<persontop; j++)
-            {
-              printf("%d플레이어의  게임보드 상태\n",j);
+            //for(int j=0; j<persontop; j++)
+            //{
+            //  printf("%d플레이어의  게임보드 상태\n",j);
+            //  for(int k=0; k<18; k++)
+            //  {
+            //    for(int l=0; l<10; l++)
+            //    {
+            //      printf("%d ",map[j][k][l]);
+            //    }
 
-              for(int k=0; k<18; k++)
-              {
-                for(int l=0; l<10; l++)
-                {
-                  printf("%d ",map[j][k][l]);
-                }
+            //    printf("\n");
+            //  }
 
-                printf("\n");
-              }
-
-              printf("\n\n");
-            }
+            //  printf("\n\n");
+            //}
 
             printf("%d 플레어가 뒤짐\n",id);
-
           }
-        }
-        else{
-          printf("%d 번쨰 플레이어의 데이터가 갱신되지 않음\n",i);
         }
       }
     }
