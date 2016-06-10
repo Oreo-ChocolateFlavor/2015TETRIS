@@ -283,10 +283,12 @@ public class WaitingRoom extends javax.swing.JFrame{
             else if(tmpbuf == CreateRoom.IS_NOW_PLAYING_SIG)
             {
             	System.out.println("IS now playing!");
+                JOptionPane.showMessageDialog(null, room_name + "is now playing!",
+                        "참가 불가",JOptionPane.PLAIN_MESSAGE);
             }
                     } catch (Exception err) {
             // TODO Auto-generated catch block
-            JOptionPane.showMessageDialog(null, err.getMessage());
+            JOptionPane.showMessageDialog(null, err.toString());
         }
 
     }// GEN-LAST:jButton_join_roomActionPerformed

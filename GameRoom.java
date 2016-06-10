@@ -230,7 +230,11 @@ public class GameRoom extends javax.swing.JFrame{
         jButton_start
                 .addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    	byte start_tmp = 0;
+                        jButton_start.setText("Playing");
+                        jButton_start.setEnabled(false);
+                        jButton_exit.setEnabled(false);
+
+                        byte start_tmp = 0;
                     	start_game = true;
                     	
                     	if(!join) {
@@ -480,6 +484,7 @@ public class GameRoom extends javax.swing.JFrame{
 			}
         	if(temp == CreateRoom.HOST_GAMESTART_SIG&& join)
         	{
+                jButton_exit.setEnabled(false);
         		TimerTask mytask = new SendTimer();
 		        java.util.Timer t = new java.util.Timer(true);
 		        t.schedule(mytask, 500);
@@ -528,6 +533,7 @@ public class GameRoom extends javax.swing.JFrame{
             {
             	if(tetris.game_flag == true)
             	{
+                        jButton_exit.setEnabled(true);
             		if(once == true)
             		{
             			try {
