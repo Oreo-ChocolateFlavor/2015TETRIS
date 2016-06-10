@@ -12,27 +12,27 @@
 #define LEAVE_GAMEROOM_SIG  -111 // 게임룸에서 사용자가 나갈때
 #define HOST_GAMESTART_SIG -112 // 게임룸에서 호스트가 스타트 버튼을 누를때
 #define GAMEBOARD_UPDATE_SIG -113 // 게임보드를 업데이트 해줄떄.
-#define IS_NOW_PLAYING -114
-#define GAME_OVER_SIG -115
-#define GMAE_END_SIG -116
+#define IS_NOW_PLAYING -114 // 해당방이 게임 플레이중이면
+#define GAME_OVER_SIG -115 // 특정 유저가 죽었을 때
+#define GMAE_END_SIG -116 // 모든 유저가 죽었을 때
 
-struct PIPE
+struct PIPE  // 부모서버와 자식서버 사이의 통신을위해 정의하는 구조체
 {
-  int child[2];
-  int parent[2];
+  int child[2]; // 0 == 자식 stdin  1 == 자식 stdout
+  int parent[2]; // 0 == 부모 stdin  1 == 부모 stdout
 };
 
-struct room_info
+struct room_info  // 게임방 정보를 담아두는 구조체
 {
-  char name[52];
-  int port;
-  int maxperson;
-  int nowperson;
-  bool isplay;
+  char name[52]; // 방이름
+  int port; // 해당 방 포트
+  int maxperson; // 맥스 인원수
+  int nowperson; // 현재 방인원수
+  bool isplay; // 지금 현재 게임중인지.
 };
 
-struct person
+struct person // 게임서버에서 방에 들어온 플레이어를 관리하는 구조체
 {
-  char id[20];
-  int client_sock;
+  char id[20]; //플레이어 아이디 저장 구조체
+  int client_sock; // 해당 클라와 통신하는 소켓번호를 저장;
 };

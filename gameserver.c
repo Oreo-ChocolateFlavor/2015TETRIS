@@ -12,18 +12,22 @@
 
 
 
-char map[6][18][10] = {0};
-struct person per[5];
+char map[6][18][10] = {0};  // 게임 맵을 저장하는 배열
+struct person per[5]; //플레이어 정보저장
 int persontop = 0;
 char recvgamesig;
+char isdie[7];
 
-int nowstack = 0;
+int nowstack = 0; // 죽은 순서를 저장하기 위한 STACK
 int score[5] = {0};
 
 void ReadGameserver(int sock,char* buf);
 
 void Gameserver(struct PIPE pip,int serverport)
 {
+  for(int i=0; i<7; i++)
+    isdie[i] = -1;
+
   int owner;
 
   printf("GAMESERVER is Created serverport : %d\n",serverport);
@@ -98,6 +102,7 @@ void Gameserver(struct PIPE pip,int serverport)
       }
 
       if(persontop == 0) owner = client_sock;
+      isdie[persontop] = 0;
       persontop++;
 
     }
@@ -112,13 +117,14 @@ void Gameserver(struct PIPE pip,int serverport)
           char buf[1024] = "";
           ReadGameserver(per[i].client_sock,buf);
 
-          if(recvgamesig == (char)LEAVE_GAMEROOM_SIG)
+          if(recvgamesig == (char)LEAVE_GAMEROOM_SIG) // join한 사람이 방을떠날떄
           {
 
             FD_CLR(per[i].client_sock,&oldset);
             close(per[i].client_sock);
             per[i] = per[persontop -1];
             persontop--;
+            isdie[persontop] = -1;
 
             printf("%c[1;33m\n",27);
             printf("IN THE GAMEROOM\n");
@@ -126,8 +132,10 @@ void Gameserver(struct PIPE pip,int serverport)
             printf("%c[0m\n",27);
             fflush(stdout);
           }
-          else if(recvgamesig == (char)DESTROY_ROOM_SIG)
+          else if(recvgamesig == (char)DESTROY_ROOM_SIG)  // 방이 없어질 때
           {
+            for(int j=0; j<persontop; j++)
+              write(per[j].client_sock,&recvgamesig,1);
 
             for(int j=0; j<persontop; j++)
               close(per[j].client_sock);
@@ -139,8 +147,13 @@ void Gameserver(struct PIPE pip,int serverport)
             fflush(stdout);
             exit(0);
           }
-          else if(recvgamesig == (char)HOST_GAMESTART_SIG)
+          else if(recvgamesig == (char)HOST_GAMESTART_SIG)  // 호스트가 게임 시작을할떄
           {
+
+              for(int j=0; j<7; j++)
+                isdie[j] = -1;
+              for(int j=0; j<persontop; j++)
+                isdie[j] = 0;
 
               printf("%c[1;33m\n",27);
               printf("HOST 가 게임스타트 버튼을 누름\n");
@@ -152,7 +165,7 @@ void Gameserver(struct PIPE pip,int serverport)
 
               printf("GAMESTART!\n");
           }
-          else if(recvgamesig == GAMEBOARD_UPDATE_SIG)
+          else if(recvgamesig == GAMEBOARD_UPDATE_SIG)  // 게임보드 업데이트 시그널을 받았을때
           {
             char id;
             read(per[i].client_sock,&id,1);
@@ -167,36 +180,38 @@ void Gameserver(struct PIPE pip,int serverport)
 
             for(int j=0; j<5; j++)
             {
-              char sendid = -(j+1);
+              char isdiesig = isdie[j];
               write(per[i].client_sock,map[j],10*18*sizeof(char));
-              write(per[i].client_sock,&sendid,1);
+              write(per[i].client_sock,&isdiesig,1);
 
             }
           }
-          else if(recvgamesig == GAME_OVER_SIG)
+          else if(recvgamesig == GAME_OVER_SIG)  //게임오버 시그널을 받았을때
           {
             char id = 0;
             read(per[i].client_sock,&id,1);
             score[nowstack] = id;
+            isdie[i] = persontop - nowstack;
             nowstack++;
 
-            //for(int j=0; j<persontop; j++)
-            //{
-            //  printf("%d플레이어의  게임보드 상태\n",j);
-            //  for(int k=0; k<18; k++)
-            //  {
-            //    for(int l=0; l<10; l++)
-            //    {
-            //      printf("%d ",map[j][k][l]);
-            //    }
+            printf("%d 플레어가 죽음 등수 : %d\n",id,isdie[i]);
+          }
+          else if(recvgamesig == 0)
+          {
+            recvgamesig = DESTROY_ROOM_SIG;
+            for(int j=0; j<persontop; j++)
+            {
+              if(j == i) continue;
+              write(per[j].client_sock,&recvgamesig,1);
+            }
+            for(int j=0; j<persontop; j++)
+            {
+              if(j == i) continue;
+              close(per[j].client_sock);
+            }
 
-            //    printf("\n");
-            //  }
-
-            //  printf("\n\n");
-            //}
-
-            printf("%d 플레어가 뒤짐\n",id);
+            printf("게임서버가 비정상종료를 하였습니다.\n");
+            exit(1);
           }
         }
       }
@@ -204,7 +219,7 @@ void Gameserver(struct PIPE pip,int serverport)
 
     if(nowstack == persontop)
     {
-      printf("모든 놈들이 다주금!\n");
+      printf("게임이 끝남!\n");
     }
 
   }
@@ -213,13 +228,11 @@ void Gameserver(struct PIPE pip,int serverport)
 }
 
 
-void ReadGameserver(int sock,char* buf) // 버그의 소지가 있음.. 고치는 것은 생각을좀 해보자.
+void ReadGameserver(int sock,char* buf) // 메세지 읽어드리는 함수
 {
   int len=1024;
   int recvlen=0;
   char *t = buf;
-
-  printf("리드에서 블락걸림\n");
 
   while(len!=0  && (recvlen = read(sock,t,1)))
   {
@@ -232,6 +245,5 @@ void ReadGameserver(int sock,char* buf) // 버그의 소지가 있음.. 고치�
   recvgamesig = *(t-1);
   *(t-1) = 0;
 
-  printf("블락 풀림\n");
   printf("gameserver <%d> is read  SIG is  = %d  \"%s\"\n",getpid(),recvgamesig,buf);
 }

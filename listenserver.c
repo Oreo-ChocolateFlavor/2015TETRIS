@@ -18,11 +18,10 @@ int inputsignal;
 int nfd,fdname;
 struct PIPE p[1000];
 int pipe_count;
-
 struct room_info room[20];
 int room_count;
 
-static void sighandler(int sig)
+static void sighandler(int sig)  // SIG_CHILD가 들어왔을때 좀비프로세스를 죽이기 위해 등록한 핸들러
 {
   int status;
   pid_t id = waitpid(-1,&status,WNOHANG);
@@ -33,15 +32,15 @@ static void sighandler(int sig)
   }
 
 }
-void SendRoomList(struct PIPE pip,int connectedsock);
-void AddRoomList(struct PIPE pip,char* buf,int childport);
-void Gameserver(struct PIPE pip,int serverport);
-void ReadMessage(int sock,char* buf);
-void ConnectedServer(int connectedsock,struct PIPE pip);
-void CreateRoom(struct PIPE pip,int connectedsock,int* childport);
-void JoinRoom(struct PIPE pip,int connectedsock);
+void SendRoomList(struct PIPE pip,int connectedsock);  // 클라이언트에게 방정보를 보낼떄 실행되는 함수
+void AddRoomList(struct PIPE pip,char* buf,int childport); // 클라이어트가 방을 만들때 실행되는 함수
+void Gameserver(struct PIPE pip,int serverport); // 클라이언트가 방을 만들고 생성되는 게임전용 서버
+void ReadMessage(int sock,char* buf); // 네트워크상에서 전송된 메세지를 읽어드리는 함수
+void ConnectedServer(int connectedsock,struct PIPE pip); // 대기방에 들어갈때 생성되는 서버
+void CreateRoom(struct PIPE pip,int connectedsock,int* childport); // 클라이언트로부터 방생성 시그널을 받았을때 실행되는 함수
+void JoinRoom(struct PIPE pip,int connectedsock); // 클라이언트가 게임방에 접속했을때 생성되는 시그널
 
-int ByteToInt(const char* byte)
+int ByteToInt(const char* byte)  // Byte to Int 함수
 {
   int s1 = byte[0] & 0xFF;
   int s2 = byte[1] & 0xFF;
@@ -170,7 +169,7 @@ int main(int argc,char* argv[])
 
       pipe_count++;
     }
-    else{
+    else{  // 부모만 들어오는 분기
       for(int i=0; i<pipe_count; i++)
       {
         if(FD_ISSET(p[i].parent[0],&newset)) // 자식 프로세스로 부터 통신 요청이 들어오면!
@@ -186,7 +185,7 @@ int main(int argc,char* argv[])
             p[i] = p[pipe_count];
             pipe_count--;
           }
-          else if(SIG == JOINROOM_SIGNAL)
+          else if(SIG == JOINROOM_SIGNAL)  // 방조인 시그널이 들어오면
           {
             printf("Mainserver: JOINROOM_SIGNAL\n");
             int requsetport;
@@ -207,13 +206,13 @@ int main(int argc,char* argv[])
 
                 if(room[rc].isplay)
                 {
-                  printf("게임중이야 임마\n");
+                  printf("게임중임\n");
                   sendsignal = IS_NOW_PLAYING;
                   write(p[i].child[1],&sendsignal,1);
 
                 }else if(room[rc].nowperson + 1 > room[rc].maxperson)
                 {
-                  printf("방꽉찼어 임마\n");
+                  printf("방꽉참\n");
                   sendsignal = FULL_ROOM_SIG;
                   write(p[i].child[1],&sendsignal,1);
 
@@ -231,7 +230,7 @@ int main(int argc,char* argv[])
 
             if(!find_flag) // 방이 없으면
             {
-              printf("방 없어 임마\n");
+              printf("방이 없당 ㅠㅠ\n");
               sendsignal = NO_EXIST_ROOM;
               write(p[i].child[1],&sendsignal,1);
             }
@@ -315,7 +314,7 @@ int main(int argc,char* argv[])
 }
 
 
-void SendRoomList(struct PIPE pip,int connectedsock)
+void SendRoomList(struct PIPE pip,int connectedsock)  // 클라이언트가 방리스트를 리프레쉬할때 실행하는 함수
 {
    struct room_info roomarr[30];
 
@@ -340,7 +339,7 @@ void SendRoomList(struct PIPE pip,int connectedsock)
 
 }
 
-void AddRoomList(struct PIPE pip,char* buf,int childport)
+void AddRoomList(struct PIPE pip,char* buf,int childport) // 방을 추가할때 실행되는 함수
 {
   char sig = ADDROOM_SIGNAL;
 
@@ -361,7 +360,7 @@ void AddRoomList(struct PIPE pip,char* buf,int childport)
 }
 
 
-void ReadMessage(int sock,char* buf) // 버그의 소지가 있음.. 고치는 것은 생각을좀 해보자.
+void ReadMessage(int sock,char* buf) // 메세지를 읽어드리는 함수
 {
   int len= 1024;
   int recvlen=0;
@@ -418,7 +417,7 @@ void CreateRoom(struct PIPE pip,int connectedsock,int* childport) // 여기서 �
   }
 }
 
-void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실행되는 놈.
+void ConnectedServer(int connectedsock,struct PIPE pip) //커넥트 된후 실행되는 함수.
 {
   char buf[1024];
   int nowport;
