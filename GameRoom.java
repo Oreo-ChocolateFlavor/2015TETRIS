@@ -30,8 +30,8 @@ public class GameRoom extends javax.swing.JFrame{
     public Tetris_display tetris5;
     public ArrayList<Tetris_display> array_tetris;
     //dummy
-    private javax.swing.JButton jButton_exit;
-    private javax.swing.JButton jButton_start;
+    public static javax.swing.JButton jButton_exit;
+    public static javax.swing.JButton jButton_start;
 
     String roomname;
 
@@ -46,6 +46,8 @@ public class GameRoom extends javax.swing.JFrame{
     public byte id;
     public byte[][][] player_board;
     public GameRoom(Socket new_sock, boolean join) {
+    	jButton_start = new javax.swing.JButton();
+    	jButton_exit = new javax.swing.JButton();
     	WaitingRoom.waitingRoom.setVisible(false);
         //check join
         this.join = join;
@@ -115,8 +117,7 @@ public class GameRoom extends javax.swing.JFrame{
        
         
         
-        
-        jButton_exit = new javax.swing.JButton();
+      
         jButton_exit.setText("Exit");
         jButton_exit
                 .addActionListener(new java.awt.event.ActionListener() {
@@ -224,8 +225,6 @@ public class GameRoom extends javax.swing.JFrame{
                 dispose();
             }
         });
-
-                jButton_start = new javax.swing.JButton();
         jButton_start.setText("Start");
         if(join==true)
         {

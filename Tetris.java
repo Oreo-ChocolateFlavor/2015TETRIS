@@ -16,6 +16,9 @@ import java.awt.*;
 import java.applet.*;
 import java.awt.event.*;
 import java.util.Random;
+
+import javax.swing.JButton;
+
 import java.net.URL;
 import java.net.MalformedURLException;
 
@@ -24,6 +27,8 @@ public class Tetris extends Applet {
     KeyListener key_listener;
     public KeyListener getKey_listener() {
         return key_listener;
+        
+  
     }
         //
     // STATIC MEMBERS
@@ -141,14 +146,14 @@ public class Tetris extends Applet {
     private TetrisLabel level_label = new TetrisLabel("1");
     private TetrisLabel score_label = new TetrisLabel("0");
     private TetrisLabel high_score_label = new TetrisLabel("");
-    final Button start_newgame_butt = new TetrisButton("Start");
-    final Button pause_resume_butt = new TetrisButton("Pause");
+    final JButton start_newgame_butt = new JButton("Start");
+    final JButton pause_resume_butt = new JButton("Pause");
 
     //
     // INNER CLASSES
     //
 
-    private class TetrisButton extends Button {
+    private class TetrisButton extends JButton {
         public TetrisButton(String label) {
             super(label);
         }
@@ -315,7 +320,7 @@ public class Tetris extends Applet {
         public void run() {
             while(true) {
                 try {
-                    sleep(m_fast ? 30 : m_delay);
+                    sleep(m_fast ? 0 : m_delay);
                 } catch (Exception e) {}
                 if(m_paused) {
                     try {
@@ -599,18 +604,12 @@ public class Tetris extends Applet {
         pause_resume_butt.setEnabled(false);
         start_newgame_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                if(start_newgame_butt.getLabel().equals("Start"))
-                    startGame();
-                else
-                    newGame();
+                
             }
         });
         pause_resume_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                if(pause_resume_butt.getLabel().equals("Pause"))
-                    pauseGame();
-                else
-                    resumeGame();
+                
             }
         });
 
@@ -640,7 +639,7 @@ public class Tetris extends Applet {
                     }
                     game_grid.repaint();
                 }
-                if (e.getKeyCode() == 40) { //down arrow pressed; drop piece
+                if (e.getKeyCode() == 32) { //down arrow pressed; drop piece
                     timer.setFast(true);
                 }
             }
@@ -651,14 +650,42 @@ public class Tetris extends Applet {
         start_newgame_butt.addKeyListener(key_listener);
         pause_resume_butt.addKeyListener(key_listener);
 
+        
+        
         Panel right_panel = new Panel(new GridLayout(3, 1));
         right_panel.setBackground(BACKGROUND_COLOR);
 
+        
+        
+        
+        start_newgame_butt.setBounds(1000, 1000, 1, 1);
+        pause_resume_butt.setBounds(1000,1000,1,1);
+        start_newgame_butt.setBackground(new Color(0,0,0,100));
+        pause_resume_butt.setBackground(new Color(0,0,0,100));
+        
+       
+
+        start_newgame_butt.setForeground(new Color(0,0,0,100));
+        pause_resume_butt.setForeground(new Color(0,0,0,100));
+//        pause_resume_butt.setVisible(false);
+//       
+ //       start_newgame_butt.setEnabled(false);
+ //       pause_resume_butt.setEnabled(false);
         Panel control_panel = new Panel();
+//        GameRoom.jButton_start.addKeyListener(key_listener);
+//        GameRoom.jButton_exit.addKeyListener(key_listener);
+        
+        
+        control_panel.setLayout(null);
+        
+   //     control_panel.setVisible(false);
         control_panel.add(start_newgame_butt);
         control_panel.add(pause_resume_butt);
         control_panel.setBackground(BACKGROUND_COLOR);
         right_panel.add(control_panel);
+//        control_panel.addKeyListener(key_listener);
+        
+        
 
         Panel tmp = new Panel(new BorderLayout());
         tmp.add("North", new TetrisLabel("    Next Piece:"));
