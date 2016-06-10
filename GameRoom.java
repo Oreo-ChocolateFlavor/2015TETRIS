@@ -13,6 +13,7 @@ public class GameRoom extends javax.swing.JFrame{
 
     //join
     boolean join;
+    boolean once = true;
     public static boolean start_game =false;
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JLabel jLabel1;
@@ -117,7 +118,7 @@ public class GameRoom extends javax.swing.JFrame{
         jButton_exit
                 .addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        /*for(int i=0; i<9; i++)
+                        for(int i=0; i<9; i++)
                             {
                                 for(int j=0; j<10; j++)
                                 {
@@ -131,7 +132,7 @@ public class GameRoom extends javax.swing.JFrame{
                                     array[i][j] = 0;
                                 }
                             }
-                        update_table(tetris2, array);*/
+                        update_table(tetris2, array);
                         if(join == true)
                         {
                         	try {
@@ -142,8 +143,8 @@ public class GameRoom extends javax.swing.JFrame{
 								dout_listen.writeInt(new_sock.getPort());
 								System.out.println("client_port = "+new_sock.getPort());
 								dout_listen.flush();
-                                new_sock.close();
-                            } catch (IOException e) {
+								new_sock.close();
+                        	} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
@@ -158,8 +159,8 @@ public class GameRoom extends javax.swing.JFrame{
 								dout_listen.writeByte(CreateRoom.DESTORY_ROOM_SIG);
 								dout_listen.writeInt(new_sock.getPort());
 								dout_listen.flush();
-                                new_sock.close();
-                            } catch (IOException e) {
+								new_sock.close();
+                        	} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
@@ -181,44 +182,46 @@ public class GameRoom extends javax.swing.JFrame{
 
         this.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e) {
+                if(join == true)
+                {
+                    try {
+                        dout.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
+                        dout.flush();
 
-
-                    if (join == true) {
-                        try {
-                            dout.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
-                            dout.flush();
-
-                            dout_listen.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
-                            dout_listen.writeInt(new_sock.getPort());
-                            System.out.println("client_port = " + new_sock.getPort());
-                            dout_listen.flush();
-                        } catch (IOException err) {
-                            // TODO Auto-generated catch block
-                            err.printStackTrace();
-                        }
-
-                    } else if (join == false) {
-                        try {
-                            dout.writeByte(CreateRoom.DESTORY_ROOM_SIG);
-                            dout.flush();
-
-                            dout_listen.writeByte(CreateRoom.DESTORY_ROOM_SIG);
-                            dout_listen.writeInt(new_sock.getPort());
-                            dout_listen.flush();
-                        } catch (IOException err) {
-                            // TODO Auto-generated catch block
-                            err.printStackTrace();
-                        }
-
-                    } else {
-                        System.out.println("Exit room error");
+                        dout_listen.writeByte(CreateRoom.LEAVE_GAMEROOM_SIG);
+                        dout_listen.writeInt(new_sock.getPort());
+                        System.out.println("client_port = "+new_sock.getPort());
+                        dout_listen.flush();
+                    } catch (IOException err) {
+                        // TODO Auto-generated catch block
+                        err.printStackTrace();
                     }
-                    dispose();
-                }
 
+                }
+                else if(join == false)
+                {
+                    try {
+                        dout.writeByte(CreateRoom.DESTORY_ROOM_SIG);
+                        dout.flush();
+
+                        dout_listen.writeByte(CreateRoom.DESTORY_ROOM_SIG);
+                        dout_listen.writeInt(new_sock.getPort());
+                        dout_listen.flush();
+                    } catch (IOException err) {
+                        // TODO Auto-generated catch block
+                        err.printStackTrace();
+                    }
+
+                }
+                else
+                {
+                    System.out.println("Exit room error");
+                }
+                dispose();
+            }
         });
 
-        jButton_start = new javax.swing.JButton();
+                jButton_start = new javax.swing.JButton();
         jButton_start.setText("Start");
         if(join==true)
         {
@@ -227,11 +230,7 @@ public class GameRoom extends javax.swing.JFrame{
         jButton_start
                 .addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        jButton_start.setText("Playing");
-                        jButton_start.setEnabled(false);
-                        jButton_exit.setEnabled(false);
-
-                        byte start_tmp = 0;
+                    	byte start_tmp = 0;
                     	start_game = true;
                     	
                     	if(!join) {
@@ -481,7 +480,6 @@ public class GameRoom extends javax.swing.JFrame{
 			}
         	if(temp == CreateRoom.HOST_GAMESTART_SIG&& join)
         	{
-                jButton_exit.setEnabled(false);
         		TimerTask mytask = new SendTimer();
 		        java.util.Timer t = new java.util.Timer(true);
 		        t.schedule(mytask, 500);
@@ -530,16 +528,19 @@ public class GameRoom extends javax.swing.JFrame{
             {
             	if(tetris.game_flag == true)
             	{
-            		try {
-                        jButton_exit.setEnabled(true);
-            			dout.writeByte(CreateRoom.GAME_OVER_SIG);
-            			dout.write(id);
-            			dout.flush();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-            		break;
+            		if(once == true)
+            		{
+            			try {
+                			dout.writeByte(CreateRoom.GAME_OVER_SIG);
+                			dout.write(id);
+                			dout.flush();
+    					} catch (IOException e) {
+    						// TODO Auto-generated catch block
+    						e.printStackTrace();
+    					}
+            			once = false;
+            		}
+            		
             	}
             	try {
 					Thread.sleep(500);
@@ -617,9 +618,9 @@ public class GameRoom extends javax.swing.JFrame{
 						for(int k=0; k<10; k++)
 						{
 							if(temp_board[i][j*10 + k]==1)
-								player_board_int[i][j][k] = i;
+								player_board_int[i][j][k]=1;
 							else
-								player_board_int[i][j][k] = -1;
+								player_board_int[i][j][k]=-1;
 							
 						}
 					}

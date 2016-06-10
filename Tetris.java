@@ -685,26 +685,26 @@ public class Tetris extends Applet {
     }
 
 
-    public static void main(String[] args) {
-
-        Frame frame = new Frame("Tetris");
-        Tetris tetris = new Tetris();
-
-        frame.add(tetris);
-        tetris.init();
-        tetris.start();
-
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
-        });
-
-        //frame.setSize(489, 441);
-        frame.setSize(100, 80);
-        frame.setResizable(false);
-        frame.setVisible(true);
-    }
+//    public static void main(String[] args) {
+//
+//        Frame frame = new Frame("Tetris");
+//        Tetris tetris = new Tetris();
+//
+//        frame.add(tetris);
+//        tetris.init();
+//        tetris.start();
+//
+//        frame.addWindowListener(new WindowAdapter() {
+//            public void windowClosing(WindowEvent e) {
+//                System.exit(0);
+//            }
+//        });
+//
+//        //frame.setSize(489, 441);
+//        frame.setSize(100, 80);
+//        frame.setResizable(false);
+//        frame.setVisible(true);
+//    }
 } // end class Tetris
 
 

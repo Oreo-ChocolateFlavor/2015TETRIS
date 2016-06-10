@@ -231,12 +231,16 @@ public class WaitingRoom extends javax.swing.JFrame{
         // TODO add your handling code here:
         try {
 
-
+        	int row = table.getSelectedRow();
+        	dout.writeByte(CreateRoom.ROOMINFOSEND_SIGNAL);
+            dout.flush();
+            Client.read_line(din, new_sock);
+            setRoom_info(Client.getData());
             //테이블에서 방정보 받아오기
             //키값 갖고오려면 아래 숫자 바꾸면 됨
-            final String now_max = (String) model.getValueAt(table.getSelectedRow(), 3);
-            final String room_port = (String) model.getValueAt(table.getSelectedRow(), 2);
-            final String room_name = (String) model.getValueAt(table.getSelectedRow(), 1);
+            final String now_max = (String) model.getValueAt(row, 3);
+            final String room_port = (String) model.getValueAt(row, 2);
+            final String room_name = (String) model.getValueAt(row, 1);
             //임시
             dout.writeByte(JOINROOM_SIGNAL);
             dout.writeInt(Integer.parseInt(room_port));
@@ -279,12 +283,10 @@ public class WaitingRoom extends javax.swing.JFrame{
             else if(tmpbuf == CreateRoom.IS_NOW_PLAYING_SIG)
             {
             	System.out.println("IS now playing!");
-                JOptionPane.showMessageDialog(null, room_name + "is now playing!",
-                        "참가 불가",JOptionPane.PLAIN_MESSAGE);
             }
                     } catch (Exception err) {
             // TODO Auto-generated catch block
-            JOptionPane.showMessageDialog(null, err.toString());
+            JOptionPane.showMessageDialog(null, err.getMessage());
         }
 
     }// GEN-LAST:jButton_join_roomActionPerformed
@@ -325,7 +327,6 @@ public class WaitingRoom extends javax.swing.JFrame{
 
     public void setRoom_info(room_info[] data) {
         this.data = data;
-        //System.out.println(data.toString());
         model.setRowCount(0);
         //TABLE initiate
         ArrayList<String[]> tmplist = new ArrayList<String[]>();
