@@ -33,6 +33,10 @@ public class Tetris extends Applet {
     {
     	return this.grid;
     }
+    public void setgrid(int[][] new_grid)
+    {
+    	this.grid = new_grid;
+    }
     private final static int INITIAL_DELAY = 1000;
     private final static byte ROWS = 18;
     private final static byte COLUMNS = 10;

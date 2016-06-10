@@ -12,6 +12,7 @@ import java.util.ArrayList;
  */
 public class WaitingRoom extends javax.swing.JFrame{
 
+	public static WaitingRoom waitingRoom;
     public static final int CREATEROOM_SIGNAL = -100;
     public static final int ROOMINFOSEND_SIGNAL = -101;
     public static final int JOINROOM_SIGNAL = -103;
@@ -37,7 +38,7 @@ public class WaitingRoom extends javax.swing.JFrame{
     DataInputStream din;
     
     public WaitingRoom(Socket sock) {
-
+    	this.waitingRoom = this;
         isrunning = true;
 
         //sock, read, write
@@ -254,10 +255,14 @@ public class WaitingRoom extends javax.swing.JFrame{
             if(tmpbuf == CreateRoom.FULLL_ROOM_SIG)
             {
             	System.out.println("Full_Room_signal get");
+            	JOptionPane.showMessageDialog(null, room_name + "is Full!",
+                        "참가 불가",JOptionPane.PLAIN_MESSAGE);
             }
             else if(tmpbuf ==CreateRoom.NO_EXIST_ROOM )
             {
             	System.out.println("No_exist_room_sig get");
+            	JOptionPane.showMessageDialog(null, room_name + "There is no room you choose!",
+                        "참가 불가",JOptionPane.PLAIN_MESSAGE);
             }
             else if(tmpbuf == CreateRoom.AVAIL_ROOM_SIG)
             {

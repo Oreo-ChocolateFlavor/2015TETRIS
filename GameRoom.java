@@ -1,4 +1,6 @@
 import javax.swing.*;
+
+import java.awt.Dialog;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
@@ -44,6 +46,7 @@ public class GameRoom extends javax.swing.JFrame{
     public byte id;
     public byte[][][] player_board;
     public GameRoom(Socket new_sock, boolean join) {
+    	WaitingRoom.waitingRoom.setVisible(false);
         //check join
         this.join = join;
         //new_sock, read, write
@@ -118,6 +121,7 @@ public class GameRoom extends javax.swing.JFrame{
         jButton_exit
                 .addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    	WaitingRoom.waitingRoom.setVisible(true);
                         for(int i=0; i<9; i++)
                             {
                                 for(int j=0; j<10; j++)
@@ -310,7 +314,7 @@ public class GameRoom extends javax.swing.JFrame{
                                         .addGap(18, 18, 18)
                                         .addComponent(tetris,
                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                500,
+                                                650,
                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18)
                                         .addComponent(jLabel1)
@@ -328,7 +332,7 @@ public class GameRoom extends javax.swing.JFrame{
                                         .addGap(18, 18, 18)
                                         .addComponent(tetris2,
                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                200,
+                                                300,
                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18)
                                         .addComponent(jLabel2)
@@ -339,7 +343,7 @@ public class GameRoom extends javax.swing.JFrame{
                                                         .addGap(18, 18, 18)
                                                         .addComponent(tetris4,
                                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                                200,
+                                                                300,
                                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                                         .addGap(18, 18, 18)
                                                         .addComponent(jLabel4)
@@ -352,7 +356,7 @@ public class GameRoom extends javax.swing.JFrame{
                                         .addGap(18, 18, 18)
                                         .addComponent(tetris3,
                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                200,
+                                                300,
                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18)
                                         .addComponent(jLabel3)
@@ -363,7 +367,7 @@ public class GameRoom extends javax.swing.JFrame{
                                                         .addGap(18, 18, 18)
                                                         .addComponent(tetris5,
                                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                                200,
+                                                                300,
                                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                                         .addGap(18, 18, 18)
                                                         .addComponent(jLabel5)
@@ -387,7 +391,7 @@ public class GameRoom extends javax.swing.JFrame{
                                                         .addGap(30, 30, 30)
                                                         .addComponent(tetris,
                                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                                250,
+                                                                600,
                                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                                         .addGap(18, 18, 18)
                                                         .addComponent(jLabel1)
@@ -404,7 +408,7 @@ public class GameRoom extends javax.swing.JFrame{
                                                         .createParallelGroup()
                                                         .addComponent(tetris2,
                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                100,
+                                                200,
                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18)
                                         .addComponent(jLabel2)
@@ -414,7 +418,7 @@ public class GameRoom extends javax.swing.JFrame{
                                                                         .createParallelGroup()
                                                                         .addComponent(tetris4,
                                                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                                                100,
+                                                                                200,
                                                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                         .addGap(18, 18, 18)
                                                                         .addComponent(jLabel4)
@@ -426,7 +430,7 @@ public class GameRoom extends javax.swing.JFrame{
                                                         .createParallelGroup()
                                                         .addComponent(tetris3,
                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                100,
+                                                200,
                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18)
                                         .addComponent(jLabel3)
@@ -435,7 +439,7 @@ public class GameRoom extends javax.swing.JFrame{
                                                                         .createParallelGroup()
                                                                         .addComponent(tetris5,
                                                                                 javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                                                100,
+                                                                                200,
                                                                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                         .addGap(18, 18, 18)
                                                                         .addComponent(jLabel5)
@@ -447,7 +451,7 @@ public class GameRoom extends javax.swing.JFrame{
                         )
                 );
 
-        setBounds(0, javax.swing.GroupLayout.PREFERRED_SIZE, 1000, 700);
+        setBounds(0, javax.swing.GroupLayout.PREFERRED_SIZE, 1200, 800);
 
         //this.setTitle("Game Room");
         this.setTitle(roomname);
@@ -506,6 +510,17 @@ public class GameRoom extends javax.swing.JFrame{
 
     public void setId(byte id) {
         this.id = id;
+        if(join == true) {
+            jLabel1.setText("Player" + (id+1));
+            if(id >= 1)
+                jLabel2.setText("Player1");
+            if(id >= 2)
+                jLabel3.setText("Player2");
+            if(id >= 3)
+                jLabel4.setText("Player3");
+            if(id >= 4)
+                jLabel5.setText("Player4");
+        }
     }
     
     private class RecvTimer extends TimerTask
@@ -614,7 +629,43 @@ public class GameRoom extends javax.swing.JFrame{
 					
 					din.read(temp_board[4], 0, 180);
 					id5 = din.readByte();
-					
+				
+					if(id1!=0&&id2!=0&&id3!=0&&id4!=0&&id5!=0)
+					{
+						if(id2==-1)
+						{
+							JOptionPane.showMessageDialog(null, "********Player1******  "+id1+"등  ****");
+						}
+						else if(id3 ==-1)
+						{
+							JOptionPane.showMessageDialog(null, "********Player1******  "+id1+"등  ****\n"
+		 							+"********Player2******  "+id2+"등  ****\n"
+		 							);
+						}
+						else if(id4 == -1)
+						{
+							JOptionPane.showMessageDialog(null, "********Player1******  "+id1+"등  ****\n"
+		 							+"********Player2******  "+id2+"등  ****\n"
+		 							+"********Player3******  "+id3+"등  ****\n");
+						}
+						else if(id5 == -1)
+						{
+							JOptionPane.showMessageDialog(null, "********Player1******  "+id1+"등  ****\n"
+		 							+"********Player2******  "+id2+"등  ****\n"
+		 							+"********Player3******  "+id3+"등  ****\n"
+		 							+"********Player4******  "+id4+"등  ****\n");
+						}
+						else
+						{
+							JOptionPane.showMessageDialog(null, "********Player1******  "+id1+"등  ****\n"
+		 							+"********Player2******  "+id2+"등  ****\n"
+		 							+"********Player3******  "+id3+"등  ****\n"
+		 							+"********Player4******  "+id4+"등  ****\n"
+		 							+"********Player5******  "+id5+"등  ****\n");	
+						}
+						
+						break;
+					}
 					
 					for(int i=0; i<5; i++)
 					{
