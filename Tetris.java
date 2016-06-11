@@ -27,20 +27,20 @@ public class Tetris extends Applet {
     KeyListener key_listener;
     public KeyListener getKey_listener() {
         return key_listener;
-        
-  
+
+
     }
-        //
+    //
     // STATIC MEMBERS
     //
 
     public int[][] getgrid()
     {
-    	return this.grid;
+        return this.grid;
     }
     public void setgrid(int[][] new_grid)
     {
-    	this.grid = new_grid;
+        this.grid = new_grid;
     }
     private final static int INITIAL_DELAY = 1000;
     private final static byte ROWS = 18;
@@ -162,7 +162,7 @@ public class Tetris extends Applet {
         }
     }
 
-    
+
     private class TetrisPiece {
         private boolean squares[][];
         private int type;
@@ -468,10 +468,10 @@ public class Tetris extends Applet {
 
     public boolean get_gameflag()
     {
-    	return this.game_flag;
+        return this.game_flag;
     }
     public void gameOver() {
-    	this.game_flag = true;
+        this.game_flag = true;
         System.out.println("Game Over!");
         timer.setPaused(true);
         pause_resume_butt.setEnabled(false);
@@ -563,8 +563,8 @@ public class Tetris extends Applet {
     }
 
     public void startGame() {
-    //    private void startGame() {
-            timer.setDelay(INITIAL_DELAY);
+        //    private void startGame() {
+        timer.setDelay(INITIAL_DELAY);
         timer.setPaused(false);
         start_newgame_butt.setLabel("Start New Game");
         pause_resume_butt.setEnabled(true); // stays enabled from here on
@@ -575,8 +575,8 @@ public class Tetris extends Applet {
 
     //changed
     public void newGame() {
-   //     private void newGame() {
-            game_grid.clear();
+        //     private void newGame() {
+        game_grid.clear();
         installNewPiece();
         num_rows_deleted = 0;
         rows_deleted_label.setText("0");
@@ -604,12 +604,12 @@ public class Tetris extends Applet {
         pause_resume_butt.setEnabled(false);
         start_newgame_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                
+
             }
         });
         pause_resume_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                
+
             }
         });
 
@@ -650,42 +650,23 @@ public class Tetris extends Applet {
         start_newgame_butt.addKeyListener(key_listener);
         pause_resume_butt.addKeyListener(key_listener);
 
-        
-        
         Panel right_panel = new Panel(new GridLayout(3, 1));
         right_panel.setBackground(BACKGROUND_COLOR);
 
-        
-        
-        
         start_newgame_butt.setBounds(1000, 1000, 1, 1);
         pause_resume_butt.setBounds(1000,1000,1,1);
         start_newgame_butt.setBackground(new Color(0,0,0,100));
         pause_resume_butt.setBackground(new Color(0,0,0,100));
-        
-       
-
         start_newgame_butt.setForeground(new Color(0,0,0,100));
         pause_resume_butt.setForeground(new Color(0,0,0,100));
-//        pause_resume_butt.setVisible(false);
-//       
- //       start_newgame_butt.setEnabled(false);
- //       pause_resume_butt.setEnabled(false);
+
         Panel control_panel = new Panel();
-//        GameRoom.jButton_start.addKeyListener(key_listener);
-//        GameRoom.jButton_exit.addKeyListener(key_listener);
-        
-        
+
         control_panel.setLayout(null);
-        
-   //     control_panel.setVisible(false);
         control_panel.add(start_newgame_butt);
         control_panel.add(pause_resume_butt);
         control_panel.setBackground(BACKGROUND_COLOR);
         right_panel.add(control_panel);
-//        control_panel.addKeyListener(key_listener);
-        
-        
 
         Panel tmp = new Panel(new BorderLayout());
         tmp.add("North", new TetrisLabel("    Next Piece:"));
@@ -715,29 +696,7 @@ public class Tetris extends Applet {
         this.validate();
     }
 
-
-//    public static void main(String[] args) {
-//
-//        Frame frame = new Frame("Tetris");
-//        Tetris tetris = new Tetris();
-//
-//        frame.add(tetris);
-//        tetris.init();
-//        tetris.start();
-//
-//        frame.addWindowListener(new WindowAdapter() {
-//            public void windowClosing(WindowEvent e) {
-//                System.exit(0);
-//            }
-//        });
-//
-//        //frame.setSize(489, 441);
-//        frame.setSize(100, 80);
-//        frame.setResizable(false);
-//        frame.setVisible(true);
-//    }
 } // end class Tetris
-
 
 class DoubleBufferedCanvas extends Canvas {
     private Image mActiveOffscreenImage = null;
@@ -746,12 +705,7 @@ class DoubleBufferedCanvas extends Canvas {
     private Graphics mSystemGraphics = null;
 
     DoubleBufferedCanvas() {
-		/*
-		this.addComponentListener(new ComponentAdapter() {
-			public void componentResized(ComponentEvent e) {
-				repaint();
-			}
-		});*/
+
     }
 
     /**

@@ -4,16 +4,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
  * Created by JaeSeung on 2016. 6. 3..
  */
 public class WaitingRoom extends javax.swing.JFrame{
-
-	public static WaitingRoom waitingRoom;
-
+    public static WaitingRoom waitingRoom;  // to setvisibility
     public boolean isrunning;
     //room_info
     private room_info[] data;
@@ -32,9 +29,9 @@ public class WaitingRoom extends javax.swing.JFrame{
     BufferedReader br;
     DataOutputStream dout;
     DataInputStream din;
-    
+
     public WaitingRoom(Socket sock) {
-    	this.waitingRoom = this;
+        this.waitingRoom = this;
         isrunning = true;
 
         //sock, read, write
@@ -94,9 +91,7 @@ public class WaitingRoom extends javax.swing.JFrame{
                     }
                 });
 
-
-
-        //Layout
+        //Layout Setting
         javax.swing.GroupLayout main_jPanelLayout = new javax.swing.GroupLayout(
                 main_jPanel);
         main_jPanel.setLayout(main_jPanelLayout);
@@ -174,8 +169,7 @@ public class WaitingRoom extends javax.swing.JFrame{
                                         .addComponent(
                                                 jButton_exit))
                 );
-
-        setBounds(590, javax.swing.GroupLayout.PREFERRED_SIZE, 591, 428);
+        setBounds(590, javax.swing.GroupLayout.PREFERRED_SIZE, 591, 428);   // set size of window
 
         this.setTitle("Waiting Room");
         this.add(main_jPanel);
@@ -188,34 +182,21 @@ public class WaitingRoom extends javax.swing.JFrame{
                     dout.flush();
 
                     isrunning = false;
-
                 } catch (Exception err) {
                     // TODO Auto-generated catch block
                     JOptionPane.showMessageDialog(null, err.getMessage());
-
                 }
             }
         });
     }
 
+    // When "Create Room" button is clicked
     private void jButton_create_roomActionPerformed(
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_create_roomActionPerformed
         // TODO add your handling code here:
         try {
-        	
-
             CreateRoom createRoom = new CreateRoom(sock);
-
             createRoom.setVisible(true);
-          //  Client.read_line(din);
-            
-            //쓰레드로 변경 시 아래 코드 사용
-            /*java.awt.EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    gameRoom.setVisible(true);
-                }
-            });
-            */
         } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.getMessage());
@@ -223,13 +204,14 @@ public class WaitingRoom extends javax.swing.JFrame{
 
     }// GEN-LAST:jButton_create_roomActionPerformed
 
+    // When "Join Room" button is clicked
     private void jButton_join_roomActionPerformed(
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_join_roomActionPerformed
         // TODO add your handling code here:
         try {
-
-        	int row = table.getSelectedRow();
-        	dout.writeByte(CreateRoom.ROOMINFOSEND_SIGNAL);
+            int row = table.getSelectedRow();   // Get number of row that you selected
+            // Refresh Table to get new data
+            dout.writeByte(CreateRoom.ROOMINFOSEND_SIGNAL);
             dout.flush();
             Client.read_line(din, new_sock);
             setRoom_info(Client.getData());
@@ -238,72 +220,61 @@ public class WaitingRoom extends javax.swing.JFrame{
             final String now_max = (String) model.getValueAt(row, 3);
             final String room_port = (String) model.getValueAt(row, 2);
             final String room_name = (String) model.getValueAt(row, 1);
-            //임시
+
             dout.writeByte(CreateRoom.JOINROOM_SIGNAL);
             dout.writeInt(Integer.parseInt(room_port));
             dout.flush();
             byte tmpbuf;
-            System.out.println("point8");
             tmpbuf = din.readByte();
-            System.out.println("point9"+tmpbuf);
 
-
-            if(tmpbuf == CreateRoom.FULLL_ROOM_SIG)
+            if(tmpbuf == CreateRoom.FULLL_ROOM_SIG)  // When Room is full
             {
-            	System.out.println("Full_Room_signal get");
-            	JOptionPane.showMessageDialog(null, room_name + "is Full!",
+                JOptionPane.showMessageDialog(null, room_name + "is Full!",
                         "참가 불가",JOptionPane.PLAIN_MESSAGE);
             }
-            else if(tmpbuf ==CreateRoom.NO_EXIST_ROOM )
+            else if(tmpbuf ==CreateRoom.NO_EXIST_ROOM ) // When there is no selected Room now
             {
-            	System.out.println("No_exist_room_sig get");
-            	JOptionPane.showMessageDialog(null, room_name + "There is no room you choose!",
+                JOptionPane.showMessageDialog(null, room_name + "There is no room you choose!",
                         "참가 불가",JOptionPane.PLAIN_MESSAGE);
             }
             else if(tmpbuf == CreateRoom.AVAIL_ROOM_SIG)
             {
-            	System.out.println("point10");
-            	new_sock = Client.connect_gameserver(new_sock, Integer.parseInt(room_port), Client.getip());
-            	boolean join = true;
-            	System.out.println("point11");
+                new_sock = Client.connect_gameserver(new_sock, Integer.parseInt(room_port), Client.getip());
+                boolean join = true;
                 GameRoom gameRoom = new GameRoom(new_sock, join);
                 gameRoom.setRoomname(room_name);
                 byte temp;
                 temp = (byte)(Integer.parseInt(""+now_max.charAt(0)));
-                System.out.println("temp= "+temp);
                 gameRoom.setId(temp);
-                //gameRoom.setVisible(true);
 
-                //쓰레드로 변경
+                //쓰레드로 실행
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     public void run() {
                         gameRoom.setVisible(true);
                     }
                 });
             }
-            else if(tmpbuf == CreateRoom.IS_NOW_PLAYING_SIG)
+            else if(tmpbuf == CreateRoom.IS_NOW_PLAYING_SIG) // When selected Room is playing
             {
-            	System.out.println("IS now playing!");
                 JOptionPane.showMessageDialog(null, room_name + "is now playing!",
                         "참가 불가",JOptionPane.PLAIN_MESSAGE);
             }
-                    } catch (Exception err) {
+        } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.toString());
         }
-
     }// GEN-LAST:jButton_join_roomActionPerformed
 
+    // When "Refresh Table" button is clicked
     private void jButton_searchActionPerformed(
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_searchActionPerformed
         // TODO add your handling code here:
         try {
-        	dout.writeByte(CreateRoom.ROOMINFOSEND_SIGNAL);
+            dout.writeByte(CreateRoom.ROOMINFOSEND_SIGNAL);
             dout.flush();
-            
+
             Client.read_line(din, new_sock);
             setRoom_info(Client.getData());
-        		
         } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.getMessage());
@@ -311,23 +282,22 @@ public class WaitingRoom extends javax.swing.JFrame{
 
     }// GEN-LAST:jButton_searchActionPerformed
 
+    // When "Exit" button is clicked
     private void jButton_exitActionPerformed(
             java.awt.event.ActionEvent evt) {// GEN-FIRST:jButton_exitActionPerformed
         // TODO add your handling code here:
         try {
-        	dout.writeByte(CreateRoom.CLOSE_MAINROOM_SIGNAL);
+            dout.writeByte(CreateRoom.CLOSE_MAINROOM_SIGNAL);
             dout.flush();
 
             isrunning = false;
-
         } catch (Exception err) {
             // TODO Auto-generated catch block
             JOptionPane.showMessageDialog(null, err.getMessage());
-
         }
-
     }// GEN-LAST:jButton_exitActionPerformed
 
+    // Refresh Table data
     public void setRoom_info(room_info[] data) {
         this.data = data;
         model.setRowCount(0);
@@ -343,19 +313,4 @@ public class WaitingRoom extends javax.swing.JFrame{
             model.addRow(tmplist.get(i));
         }
     }
-
-
-/*
-
-    public static void main(String args[]) {
-
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new WaitingRoom().setVisible(true);
-            }
-        });
-
-    }
-*/
-
 }

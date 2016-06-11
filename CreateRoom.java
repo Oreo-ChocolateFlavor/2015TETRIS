@@ -24,10 +24,10 @@ public class CreateRoom extends javax.swing.JFrame{
     public static final byte GAMEBOARD_UPDATE_SIG = -113;
     public static final byte IS_NOW_PLAYING_SIG = -114;
     public static final byte GAME_OVER_SIG = -115;
-    
+
     //public static final byte 
     public static final int BUF_SIZE = 1024;
-    
+
     private javax.swing.JPanel main_jPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField jTextField_name;
@@ -41,7 +41,6 @@ public class CreateRoom extends javax.swing.JFrame{
     public CreateRoom(Socket sock) {
         this.sock = sock;
 
-        this.sock = sock;
         try {
             dout = new DataOutputStream(sock.getOutputStream());
             din = new DataInputStream(sock.getInputStream());
@@ -56,9 +55,7 @@ public class CreateRoom extends javax.swing.JFrame{
 
         jTextField_name = new JTextField();
         jTextField_name.setText("");
-
         jLabel1.setText("방 제목 : ");
-
         jButton_exit = new javax.swing.JButton();
         jButton_exit.setText("방 만들기!");
         jButton_exit
@@ -66,8 +63,7 @@ public class CreateRoom extends javax.swing.JFrame{
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         String room_name = new String();
                         room_name = jTextField_name.getText();
-                        
-                        
+
                         try {
                             if(room_name.length() == 0) {
                                 throw new Exception("방 제목을 입력해 주세요!");
@@ -89,35 +85,30 @@ public class CreateRoom extends javax.swing.JFrame{
                             dout.write(room_name.getBytes(StandardCharsets.US_ASCII), 0, room_name.getBytes().length);
                             dout.writeByte(ADDROOM_SIGNAL);
                             dout.flush();
-                            
-                            
-                            
+
                             //game_server소켓에 연결하는 부분.
                             new_sock = Client.read_line(din,new_sock);
                             boolean join = false;
                             if(new_sock==null)
-                            	System.out.println("new_sock is null");
+                                System.out.println("new_sock is null");
                             GameRoom gameRoom = new GameRoom(new_sock, join);
                             gameRoom.setRoomname(room_name);
                             gameRoom.setId((byte)0);
 
-                            //쓰레드로 변경
+                            //쓰레드로 실행
                             java.awt.EventQueue.invokeLater(new Runnable() {
                                 public void run() {
                                     gameRoom.setVisible(true);
                                 }
                             });
 
-
+                            // close this CreateRoom after make GameRoom
                             dispose();
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "방 제목 : "
                                             + room_name + "\r\n등록실패!!\r\n" + e.getMessage(),
                                     " 등록실패", JOptionPane.PLAIN_MESSAGE);
                         }
-
-
-
                     }
                 });
 
@@ -182,7 +173,7 @@ public class CreateRoom extends javax.swing.JFrame{
                                         .addComponent(jButton_exit))
                 );
 
-        setBounds(500, javax.swing.GroupLayout.PREFERRED_SIZE, 200, 150);
+        setBounds(500, javax.swing.GroupLayout.PREFERRED_SIZE, 200, 150);   // Set CreateRoom's window size
 
         this.setTitle("Create Room");
         this.add(main_jPanel);
