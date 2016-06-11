@@ -7,24 +7,24 @@ import java.io.*;
 
 public class Client {
 
-	private static room_info[] data;
-	public static Socket sock = null;
+	private static room_info[] data; //방정보 데이터를 가지고 있는 클래스변수를 선언 해 놓는다.
+	public static Socket sock = null;//소켓변수도 미리 선언 해 놓는다.
 	private static String host_ip; //To store host_ip
 	
-	public static room_info[] getData() {
+	public static room_info[] getData() { //클래스 변수의 값을 가져오는 get함수이다.
 		return data;
 	}
 
-	public static void setData(room_info[] data) {
+	public static void setData(room_info[] data) { //클래스 변수의 값을 설정하는 set함수이다.
 		Client.data = data;
 	}
 
-	public static String getip()
+	public static String getip() //ip를 가져오는 함수이다.
 	{
 		return host_ip;
 	}
 	
-	public static Socket connect_gameserver(Socket sock, int port, String ip) //connecting client to game_server
+	public static Socket connect_gameserver(Socket sock, int port, String ip) //게임서버에 클라이언트를 연결하는 함수이다.
 	{
 		try {
 			System.out.println("IP: "+ip +" port: "+port);
@@ -39,21 +39,21 @@ public class Client {
 		return sock;
 	}
 	
-	public static Socket read_line(DataInputStream din, Socket new_sock) //read and check by the signal
+	public static Socket read_line(DataInputStream din, Socket new_sock) //시그널을 만날때 까지 계속해서 읽고 시그널을 만나면 시그널에 따라 행동을 취한다.
 	{
 		
-		byte[] buf = new byte[CreateRoom.BUF_SIZE];
-		byte tmpbuf;
+		byte[] buf = new byte[CreateRoom.BUF_SIZE]; //전체를 저장할 버퍼.
+		byte tmpbuf;								//한개씩 저장할 버퍼.
 		int index=0;
 		try {
-			for(int i=0; i<CreateRoom.BUF_SIZE; i++)
+			for(int i=0; i<CreateRoom.BUF_SIZE; i++)//버퍼사이즈를 초과하지 않을때까지 계속해서 읽는다.
 			{
-				tmpbuf = din.readByte();
+				tmpbuf = din.readByte();	//한바이트씩 읽으면서 조건에 맞는지 판단한다.
 		
-				if(tmpbuf < 0)
+				if(tmpbuf < 0)	//바이트의 값이 0보다 작다는 것은 우리가 사전에 정의한 시그널만 들어온다고 판단 할 수 있다. 따라서 각 시그널에 맞는 행동을 취한다.
 				{
 					System.out.println("Get signal "+(int)tmpbuf);
-					if((int)tmpbuf == CreateRoom.PORT_SIG)
+					if((int)tmpbuf == CreateRoom.PORT_SIG)//포트번호에 대한 시그널을 읽었을 경우 앞에 있는 데이터가 포트이기 때문에int로 변환하여 게임서버에 연결한다.
 					{
 						System.out.println("Test point");
 						byte[] tmp4 = new byte[4];
@@ -66,7 +66,7 @@ public class Client {
 						new_sock = connect_gameserver(new_sock, tmp, host_ip);
 						System.out.println("connect success! to IP: "+host_ip+"port: "+tmp);
 					}
-					else if((int)tmpbuf == CreateRoom.ROOMINFOSEND_SIGNAL)
+					else if((int)tmpbuf == CreateRoom.ROOMINFOSEND_SIGNAL) //방정보에 관한 시그널을 읽었을 경우 앞에 있는 데이터가 방정보이기 때문에 사전에 정의된 만큼씩 바이트로 읽어서 값을 설정한다.
 					{
 						index = 0;
 						for(int q=0; q<CreateRoom.BUF_SIZE; q++)
@@ -137,18 +137,10 @@ public class Client {
 							}
 						}
 					}
-					else if((int)tmpbuf == CreateRoom.CHANGE_OWNER_SIG)
-					{
-						
-					}
-					else if((int)tmpbuf == CreateRoom.HOST_GAMESTART_SIG)
-					{
-						
-					}
 					index = i;
 					break;
 				}
-				else
+				else //시그널이 아닌 경우 시그널 앞에 존재하는 데이터이므로 데이터를 버퍼에 저장한다.
 				{
 					buf[i] = tmpbuf;
 				}
@@ -163,11 +155,11 @@ public class Client {
 			e.printStackTrace();
 		}
 		byte[] rtn = new byte[++index];
-		return new_sock;
+		return new_sock; //연결을 하는 부분일 경우 연결 된 소켓을 리턴한다.
 		
 	}
 
-	public static int byteToint(byte[] arr)
+	public static int byteToint(byte[] arr) //byte로 받은 데이터를 int형으로 변환하는 함수이다.
 	{
 		ByteBuffer buff =  ByteBuffer.allocate(Integer.SIZE/8);
 		buff.order(ByteOrder.LITTLE_ENDIAN);
@@ -200,22 +192,14 @@ public class Client {
              입력받은 ip로 10001번 포트에 접속( args[0] : id, args[1] : 서버 ip)
              1. 서버에 접속하기 위해 Socket 생성하고,
              Socket으로부터 InputStream과 OutputStream을  얻어와서
-             각각 Buffered와 PrintWriter 형태로 변환시킴
+             각각 DataInputStream과 DataOutputStream 형태로 변환시킴
 
              ******************************************************************/
 
         	host_ip = new String(args[1]);
             sock = new Socket(args[1], 1818);
-            pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
-            br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
             dout = new DataOutputStream(sock.getOutputStream());
             din = new DataInputStream(sock.getInputStream());
-            /******************************************************************
-
-             2. 키보드로부터 입력받기 위한 BufferedReader를 생성한 후,
-             서버로부터 전달된 문자열을 모니터에 출력하는 InputThread 객체를 생성
-
-             ******************************************************************/
 
 
              //make WaitingRoom
@@ -224,7 +208,6 @@ public class Client {
             Client.read_line(din,dummy_sock);
             WaitingRoom waitingRoom = new WaitingRoom(sock);
 			waitingRoom.setRoom_info(getData());
-            //waitingRoom.setVisible(true);
 
 			//쓰레드로 변경
             java.awt.EventQueue.invokeLater(new Runnable() {
@@ -233,70 +216,21 @@ public class Client {
                 }
             });
 
-			/*
-            Thread thread = new Thread() {
-                public void run() {
-                    waitingRoom.setVisible(true);
-                }
-            };
-            thread.start();
-
-            System.out.println("정상적으로 ");
-            thread.join();
-            System.out.println("정상적으로 joinsignal보냄");
-*/
-
-            BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
-
-            // 사용자의 id를 서버로 전송한다
-//            pw.println(args[0]);
-//            pw.flush();
-
-            while(true)
+            while(true) //게임이 진행되고 있는동안은 무한루프를 돌고있는다.
             {
                 if(!waitingRoom.isrunning) {
-                  //  System.out.println("클라이언트의 접속을 종료합니다.");
                     System.exit(0);
                 }
-                //System.out.println("정상적으로 joinsignal보냄");
                 Thread.sleep(2000);
             }
-//
-//                    InputThread it = new InputThread(sock, br);
-//
-//                    it.start();
-//
 
-            /******************************************************************
-
-             3. 키보드로부터 한 줄씩 입력받아 서버에 전송(/quit를 입력받기 전까지)
-
-             ******************************************************************/
-
-           /* String line = null;
-
-            while((line = keyboard.readLine()) != null){
-                pw.println(line);
-                pw.flush();
-
-                if(line.equals("/quit")){
-                    endflag = true;
-                    break;
-                }
-            }
-            System.out.println("클라이언트의 접속을 종료합니다.");
-*/
 
         } catch(Exception ex){
             if(!endflag)
                 System.out.println(ex);
 
         } finally{
-            try{
-                if(pw != null)
-                    pw.close();
-            }catch(Exception ex){}
-
+            
             try{
                 if(sock != null)
                     sock.close();
@@ -304,4 +238,6 @@ public class Client {
 
         }
     }
+
+
 }
