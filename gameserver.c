@@ -25,12 +25,17 @@ void ReadGameserver(int sock,char* buf);
 
 void Gameserver(struct PIPE pip,int serverport)
 {
+  char filename[100];
+  sprintf(filename,"%d",serverport);
+
+  FILE* gameserverlog = fopen(filename,"a+");
+
   for(int i=0; i<7; i++)
     isdie[i] = -1;
 
   int owner;
 
-  printf("GAMESERVER is Created serverport : %d\n",serverport);
+  fprintf(gameserverlog,"GAMESERVER is Created serverport : %d\n",serverport);
 
   int gameserver_sock, client_sock;
   struct sockaddr_in  server_addr,client_addr;
@@ -38,7 +43,7 @@ void Gameserver(struct PIPE pip,int serverport)
 
   int fdname,nfd;
 
-  if((gameserver_sock = socket(PF_INET,SOCK_STREAM,0)) < 0)
+  if((gameserver_sock = socket(PF_INET,SOCK_STREAM,0)) < 0)  //  소켓을 만들고
   {
     perror("game sock() err");
     exit(1);
@@ -52,19 +57,19 @@ void Gameserver(struct PIPE pip,int serverport)
 
   int enable = 1;
 
-  if(setsockopt(gameserver_sock,SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < -1)
+  if(setsockopt(gameserver_sock,SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < -1)  // SO_REUSEADDR 를 설정한후
   {
     perror("setsockopt()");
     exit(1);
   }
 
-  if(bind(gameserver_sock,(struct sockaddr*)&server_addr,sizeof(server_addr)) < 0)
+  if(bind(gameserver_sock,(struct sockaddr*)&server_addr,sizeof(server_addr)) < 0)  // 바인딩하고
   {
     perror("game bind() err");
     exit(1);
   }
 
-  if(listen(gameserver_sock,5) < 0)
+  if(listen(gameserver_sock,5) < 0) // 리슨상태로 만듦
   {
     perror("listen error\n");
   }
@@ -79,7 +84,7 @@ void Gameserver(struct PIPE pip,int serverport)
 
   nfd = gameserver_sock+1;
 
-  while(1)
+  while(1)  // 루프를 계속도는데
   {
     newset = oldset;
     if((fdname = select(nfd,&newset,0,0,&tim)) < 0)
@@ -89,12 +94,14 @@ void Gameserver(struct PIPE pip,int serverport)
     }
 
 
-    if(FD_ISSET(gameserver_sock,&newset)) // join 요청이 들어올때
+    if(FD_ISSET(gameserver_sock,&newset)) // connect 요청이 들어오면
     {
-      client_sock = accept(gameserver_sock,(struct sockaddr*)&client_addr,(socklen_t*)&len);
-      per[persontop].client_sock = client_sock;
+      client_sock = accept(gameserver_sock,(struct sockaddr*)&client_addr,(socklen_t*)&len); //엑셉하고
+      per[persontop].client_sock = client_sock; // per에 소켓을 추가한후
 
-      FD_SET(client_sock,&oldset);
+      fprintf(gameserverlog,"플레이어 접속!\n");
+
+      FD_SET(client_sock,&oldset); // 멀티플렉싱을위해 등록
 
       if(nfd <= client_sock)
       {
@@ -111,7 +118,7 @@ void Gameserver(struct PIPE pip,int serverport)
 
       for(int i=0; i<persontop; i++)
       {
-        if(FD_ISSET(per[i].client_sock,&newset))
+        if(FD_ISSET(per[i].client_sock,&newset))  //i번쨰 플레이어의 소켓이 변했으면
         {
 
           char buf[1024] = "";
@@ -126,11 +133,11 @@ void Gameserver(struct PIPE pip,int serverport)
             persontop--;
             isdie[persontop] = -1;
 
-            printf("%c[1;33m\n",27);
-            printf("IN THE GAMEROOM\n");
-            printf("GUEST is LEAVE THE ROOM!\n");
-            printf("%c[0m\n",27);
-            fflush(stdout);
+            fprintf(gameserverlog,"%c[1;33m\n",27);
+            fprintf(gameserverlog,"IN THE GAMEROOM\n");
+            fprintf(gameserverlog,"GUEST is LEAVE THE ROOM!\n");
+            fprintf(gameserverlog,"%c[0m\n",27);
+            fflush(gameserverlog);
           }
           else if(recvgamesig == (char)DESTROY_ROOM_SIG)  // 방이 없어질 때
           {
@@ -140,11 +147,11 @@ void Gameserver(struct PIPE pip,int serverport)
             for(int j=0; j<persontop; j++)
               close(per[j].client_sock);
 
-            printf("%c[1;33m\n",27);
-            printf("IN THE GAMEROOM\n");
-            printf("HOST IS DESTROY THE GAMEROOM!!\n");
-            printf("%c[0m\n",27);
-            fflush(stdout);
+            fprintf(gameserverlog,"%c[1;33m\n",27);
+            fprintf(gameserverlog,"IN THE GAMEROOM\n");
+            fprintf(gameserverlog,"HOST IS DESTROY THE GAMEROOM!!\n");
+            fprintf(gameserverlog,"%c[0m\n",27);
+            fflush(gameserverlog);
             exit(0);
           }
           else if(recvgamesig == (char)HOST_GAMESTART_SIG)  // 호스트가 게임 시작을할떄
@@ -155,15 +162,15 @@ void Gameserver(struct PIPE pip,int serverport)
               for(int j=0; j<persontop; j++)
                 isdie[j] = 0;
 
-              printf("%c[1;33m\n",27);
-              printf("HOST 가 게임스타트 버튼을 누름\n");
-              printf("%c[0m\n",27);
-              fflush(stdout);
+              fprintf(gameserverlog,"%c[1;33m\n",27);
+              fprintf(gameserverlog,"HOST 가 게임스타트 버튼을 누름\n");
+              fprintf(gameserverlog,"%c[0m\n",27);
+              fflush(gameserverlog);
 
               for(int j=0 ; j<persontop; j++)
                   write(per[j].client_sock,&recvgamesig,1);
 
-              printf("GAMESTART!\n");
+              fprintf(gameserverlog,"GAMESTART!\n");
           }
           else if(recvgamesig == GAMEBOARD_UPDATE_SIG)  // 게임보드 업데이트 시그널을 받았을때
           {
@@ -194,23 +201,14 @@ void Gameserver(struct PIPE pip,int serverport)
             isdie[i] = persontop - nowstack;
             nowstack++;
 
-            printf("%d 플레어가 죽음 등수 : %d\n",id,isdie[i]);
+            fprintf(gameserverlog,"%d 플레어가 죽음 등수 : %d\n",id,isdie[i]);
           }
-          else if(recvgamesig == 0)
+          else if(recvgamesig == 0)  //비정상적으로 종료를 하였을때
           {
-            recvgamesig = DESTROY_ROOM_SIG;
-            for(int j=0; j<persontop; j++)
-            {
-              if(j == i) continue;
-              write(per[j].client_sock,&recvgamesig,1);
-            }
-            for(int j=0; j<persontop; j++)
-            {
-              if(j == i) continue;
-              close(per[j].client_sock);
-            }
 
-            printf("게임서버가 비정상종료를 하였습니다.\n");
+            FD_CLR(per[i].client_sock,&oldset);
+            fprintf(gameserverlog,"%d 유저가 비정상종료를 하였습니다.\n",i);
+            fclose(gameserverlog);
             exit(1);
           }
         }
@@ -219,9 +217,10 @@ void Gameserver(struct PIPE pip,int serverport)
 
     if(nowstack == persontop)
     {
-      printf("게임이 끝남!\n");
+      fprintf(gameserverlog,"게임이 끝남!\n");
     }
 
+    fflush(gameserverlog);
   }
 
   return;

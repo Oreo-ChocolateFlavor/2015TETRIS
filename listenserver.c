@@ -52,6 +52,7 @@ int ByteToInt(const char* byte)  // Byte to Int 함수
 
 int main(int argc,char* argv[])
 {
+  FILE* filelog = fopen("listenlog","a+");
 
   room_count = 0;
   int server_sock,client_sock;
@@ -70,6 +71,8 @@ int main(int argc,char* argv[])
   if((server_sock = socket(PF_INET,SOCK_STREAM,0)) < 0)
   {
     perror("sock()");
+    fprintf(filelog,"sock err\n");
+    fflush(filelog);
     exit(1);
   }
 
@@ -78,6 +81,8 @@ int main(int argc,char* argv[])
   if(setsockopt(server_sock,SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < -1)
   {
     perror("setsockopt()");
+    fprintf(filelog,"setsockopt err\n");
+    fflush(filelog);
     exit(1);
   }             // Option length
 
@@ -86,7 +91,13 @@ int main(int argc,char* argv[])
   FD_ZERO(&oldset);
   FD_SET(server_sock,&oldset);
 
+
+
   struct timeval tim;
+  signal(SIGCHLD,sighandler);
+  len = sizeof(clientaddr);
+  tim.tv_sec =1;
+  tim.tv_usec =0;
 
   memset(&serveraddr,0,sizeof(serveraddr));
   serveraddr.sin_family = AF_INET;
@@ -96,19 +107,19 @@ int main(int argc,char* argv[])
   if((bind(server_sock,(struct sockaddr*)&serveraddr,sizeof(serveraddr))) < 0)
   {
     perror("bind()");
+    fprintf(filelog,"bind() err\n");
+    fflush(filelog);
     exit(1);
   }
 
   if((listen(server_sock,5)) < 0)
   {
     perror("listen()");
+    fprintf(filelog,"listen() err\n");
+    fflush(filelog);
     exit(1);
   }
 
-  signal(SIGCHLD,sighandler);
-  len = sizeof(clientaddr);
-  tim.tv_sec =1;
-  tim.tv_usec =0;
 
   while(1)
   {
@@ -117,6 +128,8 @@ int main(int argc,char* argv[])
     if((fdname =select(nfd,&newset,0,0,&tim)) < 0)
     {
       perror("select() err");
+      fprintf(filelog,"select() err\n");
+      fflush(filelog);
       continue;
     }
 
@@ -128,10 +141,14 @@ int main(int argc,char* argv[])
       if(pipe(child) == -1)
       {
         perror("pipe");
+        fprintf(filelog,"childe pipe err\n");
+        fflush(filelog);
       }
       if(pipe(parent)==-1)
       {
+        fprintf(filelog,"parent pipe err\n");
         perror("pipe");
+        fflush(filelog);
       }
 
       p[pipe_count].child[0] = child[0]; p[pipe_count].child[1] = child[1];
@@ -148,6 +165,8 @@ int main(int argc,char* argv[])
       if(client_sock == -1)
       {
         perror("accept()");
+        fprintf(filelog,"accpet err\n");
+        fflush(filelog);
         exit(1);
       }
 
@@ -164,6 +183,8 @@ int main(int argc,char* argv[])
       else if(pid == -1)
       {
         perror("fork()");
+        fprintf(filelog,"gameserver fork() err\n");
+        fflush(filelog);
         exit(1);
       }
 
@@ -177,10 +198,12 @@ int main(int argc,char* argv[])
           char pipemessagebuf[100] = "";
           ReadMessage(p[i].parent[0],pipemessagebuf);
           printf("In the Mainserver recv SIG : %d\n",SIG);
+          fprintf(filelog,"In the Mainserver recv SIG : %d\n",SIG);
 
           if(SIG == CLOSE_MAINROOM_SIGNAL) // 자식이 EXIT했다는 거임.
           {
             printf("Mainserver: CLOSE MAINROOM_SIGNAL\n");
+            fprintf(filelog,"Mainserver: CLOSE MAINROOM_SIGNAL\n");
             FD_CLR(p[i].parent[0],&oldset);
             p[i] = p[pipe_count];
             pipe_count--;
@@ -188,6 +211,7 @@ int main(int argc,char* argv[])
           else if(SIG == JOINROOM_SIGNAL)  // 방조인 시그널이 들어오면
           {
             printf("Mainserver: JOINROOM_SIGNAL\n");
+            fprintf(filelog,"Mainserver: JOINROOM_SIGNAL\n");
             int requsetport;
 
             read(p[i].parent[0],&requsetport,sizeof(int));
@@ -196,29 +220,37 @@ int main(int argc,char* argv[])
             char sendsignal = -1;
 
             printf("포트 번호: %d\n",requsetport);
+            fprintf(filelog,"포트 번호: %d\n",requsetport);
+            fflush(filelog);
 
             for(int rc = 0; rc< room_count; rc++)
             {
               if(room[rc].port == requsetport)
               {
                 printf("FIND ROOM\n");
+                fprintf(filelog,"FIND ROOM\n");
                 find_flag = true;
 
                 if(room[rc].isplay)
                 {
                   printf("게임중임\n");
+
+                  fprintf(filelog,"게임중임\n");
                   sendsignal = IS_NOW_PLAYING;
                   write(p[i].child[1],&sendsignal,1);
 
                 }else if(room[rc].nowperson + 1 > room[rc].maxperson)
                 {
                   printf("방꽉참\n");
+
+                  fprintf(filelog,"방꽉참\n");
                   sendsignal = FULL_ROOM_SIG;
                   write(p[i].child[1],&sendsignal,1);
 
                 }
                 else{
                   printf("이럇샤이마세!\n");
+                  fprintf(filelog,"이럇샤이마세\n");
                   sendsignal = AVAIL_ROOM_SIG;
                   room[rc].nowperson++;
                   write(p[i].child[1],&sendsignal,1);
@@ -231,6 +263,8 @@ int main(int argc,char* argv[])
             if(!find_flag) // 방이 없으면
             {
               printf("방이 없당 ㅠㅠ\n");
+              fprintf(filelog,"방이 없당 ㅠㅠ\n");
+              fflush(filelog);
               sendsignal = NO_EXIST_ROOM;
               write(p[i].child[1],&sendsignal,1);
             }
@@ -239,18 +273,22 @@ int main(int argc,char* argv[])
           else if(SIG == CREATEROOM_SIGNAL) // 여기서 포트넘버를 넘겨주고 포트를 증가시킨다.
           {
             printf("Mainserver: CREATEROOM_SIGNAL recv\n");
+            fprintf(filelog,"Mainserver: CREATEROOM_SIGNAL recv\n");
             write(p[i].child[1],&portnumber,sizeof(int));
             portnumber++;
           }
           else if(SIG == ADDROOM_SIGNAL)
           {
             printf("Mainserver: ADDROOM_SIGNAL recv\n");
+            fprintf(filelog,"Mainserver: ADDROOM_SIGNAL recv");
             read(p[i].parent[0],&room[room_count],sizeof(struct room_info));
             printf("ADDROOM_SIGNAL name: %s port: %d\n",room[room_count].name,room[room_count].port);
+            fprintf(filelog,"ADDROOM_SIGNAL name: %s port: %d\n",room[room_count].name,room[room_count].port);
             room_count++;
           }
           else if(SIG == ROOMINFOSEND_SIGNAL){
             printf("Mainserver: ROOMINFOSEND_SIGNAL recv\n");
+            fprintf(filelog,"Mainserver: ROOMINFOSEND_SIGNAL recv\n");
             write(p[i].child[1],&room,sizeof(room));
           }
           else if(SIG == LEAVE_GAMEROOM_SIG)
@@ -258,6 +296,7 @@ int main(int argc,char* argv[])
             int recvport;
             read(p[i].parent[0],&recvport,sizeof(int));
             printf("Mainserver: LEAVE_GAMEROOM_SIG recv %d\n",recvport);
+            fprintf(filelog,"Mainserver: LEAVE_GAMEROOM_SIG recv %d\n",recvport);
 
             for(int rc=0; rc <= room_count; rc++)
             {
@@ -273,7 +312,7 @@ int main(int argc,char* argv[])
             int recvport;
             read(p[i].parent[0],&recvport,sizeof(int));
             printf("Mainserver: DESTROY_ROOM_SIG recv %d\n",recvport);
-
+            fprintf(filelog,"Mainserver: DESTROY_ROOM_SIG recv %d\n",recvport);
             for(int rc=0; rc <= room_count; rc++)
             {
               if(room[rc].port == recvport)
@@ -292,6 +331,7 @@ int main(int argc,char* argv[])
 
             read(p[i].parent[0],&recvport,sizeof(int));
             printf("Mainserver: HOST_GAMESTART_SIG recv %d\n",recvport);
+            fprintf(filelog,"Mainserver: HOST_GAMESTART_SIG recv %d\n",recvport);
 
             for(int rc=0; rc <= room_count; rc++)
             {
@@ -304,7 +344,9 @@ int main(int argc,char* argv[])
 
           }else{
             printf("Nah... error\n");
+            fprintf(filelog,"Nah... error\n");
           }
+          fflush(filelog);
         }
       }
     }
@@ -390,6 +432,8 @@ void CreateRoom(struct PIPE pip,int connectedsock,int* childport) // 여기서 �
 {
   char sig = CREATEROOM_SIGNAL;
   int gameserverport;
+
+
 
   pid_t gameserver_pid;
 
