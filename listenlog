@@ -1,0 +1,220 @@
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -100
+Mainserver: CREATEROOM_SIGNAL recv
+In the Mainserver recv SIG : -102
+Mainserver: ADDROOM_SIGNAL recvADDROOM_SIGNAL name: ujuj port: 7000
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -100
+Mainserver: CREATEROOM_SIGNAL recv
+In the Mainserver recv SIG : -102
+Mainserver: ADDROOM_SIGNAL recvADDROOM_SIGNAL name: ghjgj port: 7001
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -100
+Mainserver: CREATEROOM_SIGNAL recv
+In the Mainserver recv SIG : -102
+Mainserver: ADDROOM_SIGNAL recvADDROOM_SIGNAL name: sdfsd port: 7002
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -103
+Mainserver: JOINROOM_SIGNAL
+포트 번호: 7002
+FIND ROOM
+이럇샤이마세
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -103
+Mainserver: JOINROOM_SIGNAL
+포트 번호: 7001
+FIND ROOM
+이럇샤이마세
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -103
+Mainserver: JOINROOM_SIGNAL
+포트 번호: 7000
+FIND ROOM
+이럇샤이마세
+select() err
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -103
+Mainserver: JOINROOM_SIGNAL
+포트 번호: 7000
+FIND ROOM
+이럇샤이마세
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+select() err
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -103
+Mainserver: JOINROOM_SIGNAL
+포트 번호: 7001
+FIND ROOM
+이럇샤이마세
+In the Mainserver recv SIG : -112
+Mainserver: HOST_GAMESTART_SIG recv 7000
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+select() err
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+select() err
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -100
+Mainserver: CREATEROOM_SIGNAL recv
+In the Mainserver recv SIG : -102
+Mainserver: ADDROOM_SIGNAL recvADDROOM_SIGNAL name: first port: 7000
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -100
+Mainserver: CREATEROOM_SIGNAL recv
+In the Mainserver recv SIG : -102
+Mainserver: ADDROOM_SIGNAL recvADDROOM_SIGNAL name: second port: 7001
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+select() err
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+select() err
+In the Mainserver recv SIG : -100
+Mainserver: CREATEROOM_SIGNAL recv
+In the Mainserver recv SIG : -102
+Mainserver: ADDROOM_SIGNAL recvADDROOM_SIGNAL name: fhff port: 7002
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+select() err
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -100
+Mainserver: CREATEROOM_SIGNAL recv
+In the Mainserver recv SIG : -102
+Mainserver: ADDROOM_SIGNAL recvADDROOM_SIGNAL name: qwrewr port: 7003
+In the Mainserver recv SIG : -107
+Mainserver: DESTROY_ROOM_SIG recv 7003
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -107
+Mainserver: DESTROY_ROOM_SIG recv 7000
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -100
+Mainserver: CREATEROOM_SIGNAL recv
+In the Mainserver recv SIG : -102
+Mainserver: ADDROOM_SIGNAL recvADDROOM_SIGNAL name: lll port: 7004
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -103
+Mainserver: JOINROOM_SIGNAL
+포트 번호: 7002
+FIND ROOM
+이럇샤이마세
+In the Mainserver recv SIG : -112
+Mainserver: HOST_GAMESTART_SIG recv 7002
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -103
+Mainserver: JOINROOM_SIGNAL
+포트 번호: 7004
+FIND ROOM
+이럇샤이마세
+In the Mainserver recv SIG : -112
+Mainserver: HOST_GAMESTART_SIG recv 7004
+In the Mainserver recv SIG : -111
+Mainserver: LEAVE_GAMEROOM_SIG recv 7002
+select() err
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+In the Mainserver recv SIG : -107
+Mainserver: DESTROY_ROOM_SIG recv 7002
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+In the Mainserver recv SIG : -111
+Mainserver: LEAVE_GAMEROOM_SIG recv 7004
+select() err
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+select() err
+In the Mainserver recv SIG : -101
+Mainserver: ROOMINFOSEND_SIGNAL recv
+In the Mainserver recv SIG : -104
+Mainserver: CLOSE MAINROOM_SIGNAL
+select() err
